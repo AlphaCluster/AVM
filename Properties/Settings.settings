@@ -1,0 +1,105 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AVM.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="FileNamePattern" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Name - EpisodeNumber</Value>
+    </Setting>
+    <Setting Name="LastParentGroup" Type="System.Int64" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="LastSelectedIndex" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="YouTubeWebPlayer" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="LastWatchedColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">PaleGreen</Value>
+    </Setting>
+    <Setting Name="HuluWebPlayer" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="NameColumnEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="NameColumnLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Name</Value>
+    </Setting>
+    <Setting Name="EpisodeNameColumnEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="EpisodeNameColumnLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Episode</Value>
+    </Setting>
+    <Setting Name="SeasonNumberColumnEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="SeasonNumberColumnLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="EpisodeNumberColumnEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="EpisodeNumberColumnLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">#</Value>
+    </Setting>
+    <Setting Name="VideoCodecColumnEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="VideoCodecColumnLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="AudioCodecColumnEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AudioCodecColumnLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="ContainerColumnEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="ContainerColumnLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TimesPlayedColumnEnabled" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="TimesPlayedColumnLabel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Played</Value>
+    </Setting>
+    <Setting Name="NameColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">190</Value>
+    </Setting>
+    <Setting Name="EpisodeNameColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="SeasonNumberColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="EpisodeNumberColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="VideoCodecColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="AudioCodecColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="ContainerColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="TimesPlayedColumnWidth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="NumberOfColumns" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="LastListView" Type="System.Windows.Forms.ListView" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="MoreInfoService" Type="System.String" Scope="User">
+      <Value Profile="(Default)">imdb</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
