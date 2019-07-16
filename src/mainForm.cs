@@ -854,9 +854,18 @@ namespace AVM
 
             //db = new AVM.Database(System.IO.Directory.GetCurrentDirectory().ToString() + "\\VideoManager.db3");
             // Create the folder if it doesn't exist since Installer wont.
-            if (!System.IO.Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AVM"))
-                System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AVM");
-            db = new AVM.Database(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AVM\\VideoManager.db3");
+            if (System.Environment.OSVersion.Platform == System.PlatformID.Win32NT)
+            {
+                if (!System.IO.Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AVM"))
+                    System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AVM");
+                db = new AVM.Database(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AVM\\VideoManager.db3");
+            }
+            else
+            {
+                if (!System.IO.Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/AVM"))
+                    System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/AVM");
+                db = new AVM.Database(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "/AVM/VideoManager.db3");
+            }
 
             db.ParentGroup = Properties.Settings.Default.LastParentGroup;
             refreshGroups();

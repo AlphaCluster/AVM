@@ -36,6 +36,12 @@ namespace AVM.Parsers
         private string _title = null;
         private string _embedded = null;
 
+        private const string TITLE_PRE_TEXT = "<meta name=\"title\" content=\"";
+        private const string TITLE_POST_TEXT = "\">";
+
+        private const string EMBED_URL_PRE_TEXT = "itemprop=\"embedURL\" href=\"";
+        private const string EMBED_URL_POST_TEST = "&amp;autohide=1";
+
         #region Properties
         /// <summary>
         /// The title of the YouTube video.
@@ -88,16 +94,16 @@ namespace AVM.Parsers
                 WebClient client = new WebClient();
                 client.Encoding = Encoding.UTF8;
                 string doc = client.DownloadString(_link);
-                int temp = doc.IndexOf("<meta name=\"title\" content=\"");
-                _title = doc.Substring(temp + 28);
-                temp = _title.IndexOf("\">");
+                int temp = doc.IndexOf(TITLE_PRE_TEXT);
+                _title = doc.Substring(temp + TITLE_PRE_TEXT.Length);
+                temp = _title.IndexOf(TITLE_POST_TEXT);
                 _title = _title.Substring(0, temp);
                 // Only pull out embedded data if it will be able to play it
                 if (!doc.Contains("Embedding disabled by request"))
                 {
-                    temp = doc.IndexOf("var embedUrl = '");
-                    _embedded = doc.Substring(temp + 16);
-                    temp = _embedded.IndexOf("';");
+                    temp = doc.IndexOf(EMBED_URL_PRE_TEXT);
+                    _embedded = doc.Substring(temp + EMBED_URL_PRE_TEXT.Length);
+                    temp = _embedded.IndexOf(EMBED_URL_POST_TEST);
                     _embedded = _embedded.Substring(0, temp);
                 }
                 return true;

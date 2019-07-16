@@ -28,10 +28,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Text;
 
 namespace AVM
 {
-    public class Database
+    public class Database : IDisposable
     {
         private SQLiteConnection _database;
         private long parentOfCurrentGroup = 0;
@@ -63,13 +64,16 @@ namespace AVM
                 {
                     _database.Open();
                     SQLiteTransaction trans = _database.BeginTransaction();
-                    SQLiteCommand command = new SQLiteCommand(
-                                        "SELECT parent_id FROM groups " +
-                                        "WHERE group_id = " + currentGroup + ";", _database, trans);
-                    SQLiteDataReader reader = command.ExecuteReader();
-                    reader.Read();
-                    parentOfCurrentGroup = reader.GetInt16(0);
-                    reader.Close();
+                    using (SQLiteCommand command = new SQLiteCommand(_database))
+                    {
+                        command.CommandText = "SELECT parent_id FROM groups " +
+                                              "WHERE group_id = @currentGroup;";
+                        command.Parameters.AddWithValue("@currentGroup", currentGroup);
+                        SQLiteDataReader reader = command.ExecuteReader();
+                        reader.Read();
+                        parentOfCurrentGroup = reader.GetInt16(0);
+                        reader.Close();
+                    }
                     trans.Rollback();
                     _database.Close();
                 }
@@ -90,43 +94,43 @@ namespace AVM
             if (!System.IO.File.Exists(databasePath))
             {
                 SQLiteConnection.CreateFile(databasePath);
-                SQLiteConnectionStringBuilder temp = new SQLiteConnectionStringBuilder();
-                temp.DataSource = databasePath;
-                _database = new SQLiteConnection(temp.ConnectionString);
+                SQLiteConnectionStringBuilder connectionStringBuilder = new SQLiteConnectionStringBuilder();
+                connectionStringBuilder.DataSource = databasePath;
+                _database = new SQLiteConnection(connectionStringBuilder.ConnectionString);
                 _database.Open();
                 SQLiteTransaction trans = _database.BeginTransaction();
                 #region create groups table
-                SQLiteCommand com = new SQLiteCommand();
-                com.Connection = _database;
-                com.Transaction = trans;
-                com.CommandText = "CREATE TABLE groups (" +
-                    "group_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "name TEXT," +
-                    "parent_id INTEGER DEFAULT 0);";
-                com.ExecuteNonQuery();
+                using (SQLiteCommand command = new SQLiteCommand(_database))
+                {
+                    command.CommandText = "CREATE TABLE groups (" +
+                        "group_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "name TEXT," +
+                        "parent_id INTEGER DEFAULT 0);";
+                    command.ExecuteNonQuery();
+                }
                 #endregion
                 #region create nodes table
-                com = new SQLiteCommand();
-                com.Connection = _database;
-                com.Transaction = trans;
-                com.CommandText = "CREATE TABLE nodes (" +
-                    "node_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "name TEXT," +
-                    "watched INTEGER DEFAULT 0," + // number of times watched
-                    "type INTEGER," +    // 0 means nothing 1:youtube 2: hulu
-                    "url TEXT," +        // original url for hulu or youtube video
-                    "embedded TEXT," +    // embedded info for hulu or youtube
-                    "comment TEXT," +    // stores the comment section for DVDs
-                    "episode_number INTEGER," +
-                    "season_number INTEGER," +
-                    "last_watched INTEGER," + //true 1 false 0
-                    "episode_name TEXT," +
-                    "uri TEXT," + // if null not a file
-                    "video_encoding TEXT," +
-                    "audio_encoding TEXT," +
-                    "container TEXT," +
-                    "parent_group_id INTEGER NOT NULL);";
-                com.ExecuteNonQuery();
+                using (SQLiteCommand command = new SQLiteCommand(_database))
+                {
+                    command.CommandText = "CREATE TABLE nodes (" +
+                        "node_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                        "name TEXT," +
+                        "watched INTEGER DEFAULT 0," + // number of times watched
+                        "type INTEGER," +    // 0 means nothing 1:youtube 2: hulu
+                        "url TEXT," +        // original url for hulu or youtube video
+                        "embedded TEXT," +    // embedded info for hulu or youtube
+                        "comment TEXT," +    // stores the comment section for DVDs
+                        "episode_number INTEGER," +
+                        "season_number INTEGER," +
+                        "last_watched INTEGER," + //true 1 false 0
+                        "episode_name TEXT," +
+                        "uri TEXT," + // if null not a file
+                        "video_encoding TEXT," +
+                        "audio_encoding TEXT," +
+                        "container TEXT," +
+                        "parent_group_id INTEGER NOT NULL);";
+                    command.ExecuteNonQuery();
+                }
                 #endregion
                 trans.Commit();
                 _database.Close();
@@ -149,22 +153,28 @@ namespace AVM
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
             listBox.Items.Clear();
-            SQLiteCommand command = new SQLiteCommand(
-                            "SELECT name, group_id FROM groups " +
-                            "WHERE parent_id = " + parentOfCurrentGroup +
-                            " AND group_id > 0 " +
-                            "ORDER BY name;",
-                            _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
-                while (reader.Read())
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "SELECT name, group_id FROM groups " +
+                                      "WHERE parent_id = @parentOfCurrentGroup" +
+                                      " AND group_id > 0 " +
+                                      "ORDER BY name;";
+                command.Parameters.AddWithValue("@parentOfCurrentGroup", parentOfCurrentGroup);
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
-                                                reader.GetInt64(1),
-                                                parentOfCurrentGroup);
-                    listBox.Items.Add(tempGroup);
-                    groups.Add(tempGroup);
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
+                                                        reader.GetInt64(1),
+                                                        parentOfCurrentGroup);
+                            listBox.Items.Add(tempGroup);
+                            groups.Add(tempGroup);
+                        }
+                    }
                 }
+            }
             trans.Rollback();
             _database.Close();
         }
@@ -179,20 +189,25 @@ namespace AVM
             List<AVM.Types.Group> list = new List<AVM.Types.Group>();
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand(
-                            "SELECT name, group_id FROM groups " +
-                            "WHERE parent_id = " + groupId +
-                            " AND group_id > 0;",
-                            _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
-                while (reader.Read())
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "SELECT name, group_id FROM groups WHERE parent_id = @groupId AND group_id > 0;";
+                command.Parameters.AddWithValue("@groupId", groupId);
+
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
-                                                reader.GetInt64(1),
-                                                parentOfCurrentGroup);
-                    list.Add(tempGroup);
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
+                                                        reader.GetInt64(1),
+                                                        parentOfCurrentGroup);
+                            list.Add(tempGroup);
+                        }
+                    }
                 }
+            }
             trans.Rollback();
             _database.Close();
             return list;
@@ -207,16 +222,23 @@ namespace AVM
             List<AVM.Types.Group> list = new List<AVM.Types.Group>();
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand("SELECT * from groups;", _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
-                while (reader.Read())
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "SELECT * from groups;";
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    AVM.Types.Group newGroup = new AVM.Types.Group(reader.GetString(1),
-                                               reader.GetInt64(0),
-                                               reader.GetInt64(2));
-                    list.Add(newGroup);
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            AVM.Types.Group newGroup = new AVM.Types.Group(reader.GetString(1),
+                                                       reader.GetInt64(0),
+                                                       reader.GetInt64(2));
+                            list.Add(newGroup);
+                        }
+                    }
                 }
+            }
             trans.Rollback();
             _database.Close();
             return list;
@@ -232,20 +254,26 @@ namespace AVM
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
             comboBox.Items.Clear();
-            SQLiteCommand command = new SQLiteCommand(
-                            "SELECT name, group_id FROM groups " +
-                            "WHERE parent_id = " + parentOfCurrentGroup +
-                            " AND group_id > 0;",
-                            _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
-                while (reader.Read())
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "SELECT name, group_id FROM groups " +
+                                      "WHERE parent_id = @parentOfCurrentGroup" +
+                                      " AND group_id > 0;";
+                command.Parameters.AddWithValue("@parentOfCurrentGroup", parentOfCurrentGroup);
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
-                                                reader.GetInt16(1),
-                                                parentOfCurrentGroup);
-                    comboBox.Items.Add(tempGroup);
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
+                                                        reader.GetInt16(1),
+                                                        parentOfCurrentGroup);
+                            comboBox.Items.Add(tempGroup);
+                        }
+                    }
                 }
+            }
             trans.Rollback();
             _database.Close();
         }
@@ -261,21 +289,26 @@ namespace AVM
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
             listBox.Items.Clear();
-            SQLiteCommand command = new SQLiteCommand(
-                            "SELECT name, group_id FROM groups " +
-                            "WHERE name like @query" +
-                            " AND group_id > 0;",
-                            _database, trans);
-            command.Parameters.AddWithValue("@query", "%" + query + "%");
-            SQLiteDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
-                while (reader.Read())
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "SELECT name, group_id FROM groups " +
+                                      "WHERE name like @query" +
+                                      " AND group_id > 0;";
+                command.Parameters.AddWithValue("@query", "%" + query + "%");
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
-                                                reader.GetInt16(1),
-                                                parentOfCurrentGroup);
-                    listBox.Items.Add(tempGroup);
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
+                                                        reader.GetInt16(1),
+                                                        parentOfCurrentGroup);
+                            listBox.Items.Add(tempGroup);
+                        }
+                    }
                 }
+            }
             trans.Rollback();
             _database.Close();
         }
@@ -291,20 +324,15 @@ namespace AVM
 
             foreach (AVM.Types.Group group in groups)
             {
-                // Create the adapter
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter();
-                adapter.InsertCommand = new SQLiteCommand(
-                    "INSERT INTO groups (name, group_id, parent_id) " +
-                    "VALUES (@name, @group_id, @parent_id);",
-                    trans.Connection);
-
-                // Fill the adapter with values
-                adapter.InsertCommand.Parameters.AddWithValue("@name", group.Name);
-                adapter.InsertCommand.Parameters.AddWithValue("@group_id", group.Id);
-                adapter.InsertCommand.Parameters.AddWithValue("@parent_id", group.ParentId);
-
-                adapter.InsertCommand.Transaction = trans;
-                adapter.InsertCommand.ExecuteNonQuery();
+                using (SQLiteCommand command = new SQLiteCommand(_database))
+                {
+                    command.CommandText = "INSERT INTO groups (name, group_id, parent_id) " +
+                                          "VALUES (@name, @group_id, @parent_id);";
+                    command.Parameters.AddWithValue("@name", group.Name);
+                    command.Parameters.AddWithValue("@group_id", group.Id);
+                    command.Parameters.AddWithValue("@parent_id", group.ParentId);
+                    command.ExecuteNonQuery();
+                }
             }
 
             trans.Commit();
@@ -321,15 +349,15 @@ namespace AVM
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
 
-            SQLiteCommand command = new SQLiteCommand(
-                            "INSERT INTO groups" +
-                            "(name, parent_id) VALUES"+
-                            "(@name, @parent_id);",
-                            _database, trans);
-            command.Parameters.AddWithValue("@name", name);
-            command.Parameters.AddWithValue("@parent_id", parentOfCurrentGroup);
-            command.ExecuteNonQuery();
-
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "INSERT INTO groups" +
+                                      "(name, parent_id) VALUES" +
+                                      "(@name, @parent_id);";
+                command.Parameters.AddWithValue("@name", name);
+                command.Parameters.AddWithValue("@parent_id", parentOfCurrentGroup);
+                command.ExecuteNonQuery();
+            }
             trans.Commit();
             _database.Close();
         }
@@ -345,16 +373,15 @@ namespace AVM
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
 
-            SQLiteDataAdapter adaptor = new SQLiteDataAdapter();
-            adaptor.UpdateCommand = new SQLiteCommand(
-                            "UPDATE groups " +
-                            "SET name = @name " +
-                            "WHERE group_id = @group_id;",
-                            _database, trans);
-            adaptor.UpdateCommand.Parameters.AddWithValue("@name", newName);
-            adaptor.UpdateCommand.Parameters.AddWithValue("@group_id", group.Id);
-            adaptor.UpdateCommand.ExecuteNonQuery();
-
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "UPDATE groups " +
+                                       "SET name = @name " +
+                                       "WHERE group_id = @group_id;";
+                command.Parameters.AddWithValue("@name", newName);
+                command.Parameters.AddWithValue("@group_id", group.Id);
+                command.ExecuteNonQuery();
+            }
             trans.Commit();
             _database.Close();
         }
@@ -370,38 +397,41 @@ namespace AVM
         private void recursiveRemoveGroup(AVM.Types.Group group,
                                           SQLiteTransaction trans)
         {
-            SQLiteDataAdapter adaptor = new SQLiteDataAdapter();
-            adaptor.DeleteCommand = new SQLiteCommand(
-                            "DELETE FROM groups " +
-                            "WHERE group_id = @group_id" +
-                            " AND parent_id = @parent_id" +
-                            " AND name = @name;",
-                            _database, trans);
-            adaptor.DeleteCommand.Parameters.AddWithValue("@group_id", group.Id);
-            adaptor.DeleteCommand.Parameters.AddWithValue("@parent_id", group.ParentId);
-            adaptor.DeleteCommand.Parameters.AddWithValue("@name", group.Name);
-            adaptor.DeleteCommand.ExecuteNonQuery();
-
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "DELETE FROM groups " +
+                                      "WHERE group_id = @group_id" +
+                                      " AND parent_id = @parent_id" +
+                                      " AND name = @name;";
+                command.Parameters.AddWithValue("@group_id", group.Id);
+                command.Parameters.AddWithValue("@parent_id", group.ParentId);
+                command.Parameters.AddWithValue("@name", group.Name);
+                command.ExecuteNonQuery();
+            }
             removeNodesFromGroup(group.Id, trans);
             
             // find all sub-groups to run this against
-            adaptor.SelectCommand = new SQLiteCommand(
-                            "SELECT name, group_id, parent_id FROM groups " +
-                            "WHERE parent_id = @parent_id" +
-                            " AND group_id > 0;",
-                            _database, trans);
-            adaptor.SelectCommand.Parameters.AddWithValue("@parent_id", group.Id);
-            SQLiteDataReader reader = adaptor.SelectCommand.ExecuteReader();
-            
-            if (reader.HasRows)
-                while (reader.Read())
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "SELECT name, group_id, parent_id FROM groups " +
+                                      "WHERE parent_id = @parent_id" +
+                                      " AND group_id > 0;";
+                command.Parameters.AddWithValue("@parent_id", group.Id);
+
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
-                                                reader.GetInt64(1),
-                                                reader.GetInt64(2));
-                    recursiveRemoveGroup(tempGroup, trans);
+                    if (reader.HasRows)
+                    {
+                        while (reader.Read())
+                        {
+                            AVM.Types.Group tempGroup = new AVM.Types.Group(reader.GetString(0),
+                                                        reader.GetInt64(1),
+                                                        reader.GetInt64(2));
+                            recursiveRemoveGroup(tempGroup, trans);
+                        }
+                    }
                 }
-            reader.Close();
+            }
         }
 
         /// <summary>
@@ -430,19 +460,22 @@ namespace AVM
 
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand(
-                "SELECT max(group_id) FROM groups;",
-                _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            reader.Read();
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "SELECT max(group_id) FROM groups;";
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    reader.Read();
 
-            // If there is nothing in groups yet use default.
-            if (reader.IsDBNull(0))
-                last_id = 0;
-            else
-                last_id = reader.GetInt64(0);
+                    // If there is nothing in groups yet use default.
+                    if (reader.IsDBNull(0))
+                        last_id = 0;
+                    else
+                        last_id = reader.GetInt64(0);
+                }
+            }
+            
             _database.Close();
-
             return last_id;
         }
 
@@ -455,14 +488,17 @@ namespace AVM
             {
                 _database.Open();
                 SQLiteTransaction trans = _database.BeginTransaction();
-                SQLiteCommand command = new SQLiteCommand(
-                                    "SELECT parent_id FROM groups " +
-                                    "WHERE group_id = " + parentOfCurrentGroup + ";",
-                                    _database, trans);
-                SQLiteDataReader reader = command.ExecuteReader();
-                reader.Read();
-                parentOfCurrentGroup = reader.GetInt16(0);
-                reader.Close();
+                using (SQLiteCommand command = new SQLiteCommand(_database))
+                {
+                    command.CommandText = "SELECT parent_id FROM groups " +
+                                          "WHERE group_id = @parentOfCurrentGroup;";
+                    command.Parameters.AddWithValue("@parentOfCurrentGroup", parentOfCurrentGroup);
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+                        parentOfCurrentGroup = reader.GetInt16(0);
+                    }
+                }
                 trans.Rollback();
                 _database.Close();
             }
@@ -480,54 +516,60 @@ namespace AVM
 
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand("SELECT * FROM nodes;", _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
-                while (reader.Read())
+            using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM nodes;", _database, trans))
+            {
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    AVM.Types.Node tempNode = new AVM.Types.Node();
-                    tempNode.Id = reader.GetInt64(0);
-                    tempNode.Name = reader.GetString(1);
-                    tempNode.TimesPlayed = reader.GetInt32(2);
-                    tempNode.UrlType = reader.GetInt16(3);
-                    if (tempNode.UrlType > 0)
+                    if (reader.HasRows)
                     {
-                        tempNode.Url = reader.GetString(4);
-                        if (reader.IsDBNull(5))
-                            tempNode.embedded = null;
-                        else
-                            tempNode.embedded = reader.GetString(5);
-                    }
-
-                    if (!reader.IsDBNull(6))
-                        tempNode.Comment = reader.GetString(6);
-
-                    if (!reader.IsDBNull(7))
-                        if ((reader.GetInt16(8) > -1) ||
-                            (reader.GetInt16(9) > -1) ||
-                            (!reader.IsDBNull(7)))
+                        while (reader.Read())
                         {
-                            tempNode.Episode = new AVM.Types.EpisodeInfo();
-                            tempNode.Episode.EpisodeNumber = reader.GetInt16(7);
-                            tempNode.Episode.SeasonNumber = reader.GetInt16(8);
-                            tempNode.Episode.LastWatched = (reader.GetInt16(9) != 0);
-                            if (!reader.IsDBNull(10))
-                                tempNode.Episode.EpisodeName = reader.GetString(10);
+                            AVM.Types.Node tempNode = new AVM.Types.Node();
+                            tempNode.Id = reader.GetInt64(0);
+                            tempNode.Name = reader.GetString(1);
+                            tempNode.TimesPlayed = reader.GetInt32(2);
+                            tempNode.UrlType = reader.GetInt16(3);
+                            if (tempNode.UrlType > 0)
+                            {
+                                tempNode.Url = reader.GetString(4);
+                                if (reader.IsDBNull(5))
+                                    tempNode.embedded = null;
+                                else
+                                    tempNode.embedded = reader.GetString(5);
+                            }
+
+                            if (!reader.IsDBNull(6))
+                                tempNode.Comment = reader.GetString(6);
+
+                            if (!reader.IsDBNull(7))
+                                if ((reader.GetInt16(8) > -1) ||
+                                    (reader.GetInt16(9) > -1) ||
+                                    (!reader.IsDBNull(7)))
+                                {
+                                    tempNode.Episode = new AVM.Types.EpisodeInfo();
+                                    tempNode.Episode.EpisodeNumber = reader.GetInt16(7);
+                                    tempNode.Episode.SeasonNumber = reader.GetInt16(8);
+                                    tempNode.Episode.LastWatched = (reader.GetInt16(9) != 0);
+                                    if (!reader.IsDBNull(10))
+                                        tempNode.Episode.EpisodeName = reader.GetString(10);
+                                }
+                            if (!reader.IsDBNull(11))
+                            {
+                                tempNode.File = new AVM.Types.FileData();
+                                tempNode.File.Uri = new Uri(reader.GetString(11));
+                                if (!reader.IsDBNull(12))
+                                    tempNode.File.Video_Encoding = reader.GetString(12);
+                                if (!reader.IsDBNull(13))
+                                    tempNode.File.Audio_Encoding = reader.GetString(13);
+                                if (!reader.IsDBNull(14))
+                                    tempNode.File.Container = reader.GetString(14);
+                            }
+                            tempNode.ParentId = reader.GetInt64(15);
+                            list.Add(tempNode);
                         }
-                    if (!reader.IsDBNull(11))
-                    {
-                        tempNode.File = new AVM.Types.FileData();
-                        tempNode.File.Uri = new Uri(reader.GetString(11));
-                        if (!reader.IsDBNull(12))
-                            tempNode.File.Video_Encoding = reader.GetString(12);
-                        if (!reader.IsDBNull(13))
-                            tempNode.File.Audio_Encoding = reader.GetString(13);
-                        if (!reader.IsDBNull(14))
-                            tempNode.File.Container = reader.GetString(14);
                     }
-                    tempNode.ParentId = reader.GetInt64(15);
-                    list.Add(tempNode);
                 }
+            }
             trans.Rollback();
             _database.Close();
             return list;
@@ -545,57 +587,60 @@ namespace AVM
                                                         SQLiteTransaction trans)
         {
             List<AVM.Types.Node> tempList = new List<AVM.Types.Node>();
-            SQLiteCommand command = new SQLiteCommand("SELECT * FROM nodes " +
-                   "WHERE parent_group_id = " + groupId +
-                   " ORDER BY name, season_number, episode_number, episode_name;",
-                   _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
-                while (reader.Read())
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "SELECT * FROM nodes WHERE parent_group_id = @groupId ORDER BY name, season_number, episode_number, episode_name;";
+                command.Parameters.AddWithValue("@groupId", groupId);
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    AVM.Types.Node tempNode = new AVM.Types.Node();
-                    tempNode.Id = reader.GetInt64(0);
-                    tempNode.Name = reader.GetString(1);
-                    tempNode.TimesPlayed = reader.GetInt32(2);
-                    tempNode.UrlType = reader.GetInt16(3);
-                    if (tempNode.UrlType > 0)
-                    {
-                        tempNode.Url = reader.GetString(4);
-                        if (reader.IsDBNull(5))
-                            tempNode.embedded = null;
-                        else
-                            tempNode.embedded = reader.GetString(5);
-                    }
-
-                    if (!reader.IsDBNull(6))
-                        tempNode.Comment = reader.GetString(6);
-
-                    if (!reader.IsDBNull(7))
-                        if ((reader.GetInt16(8) > -1) ||
-                            (reader.GetInt16(9) > -1) ||
-                            (!reader.IsDBNull(7)))
+                    if (reader.HasRows)
+                        while (reader.Read())
                         {
-                            tempNode.Episode = new AVM.Types.EpisodeInfo();
-                            tempNode.Episode.EpisodeNumber = reader.GetInt16(7);
-                            tempNode.Episode.SeasonNumber = reader.GetInt16(8);
-                            tempNode.Episode.LastWatched = (reader.GetInt16(9) != 0);
-                            if (!reader.IsDBNull(10))
-                                tempNode.Episode.EpisodeName = reader.GetString(10);
-                        }
+                            AVM.Types.Node tempNode = new AVM.Types.Node();
+                            tempNode.Id = reader.GetInt64(0);
+                            tempNode.Name = reader.GetString(1);
+                            tempNode.TimesPlayed = reader.GetInt32(2);
+                            tempNode.UrlType = reader.GetInt16(3);
+                            if (tempNode.UrlType > 0)
+                            {
+                                tempNode.Url = reader.GetString(4);
+                                if (reader.IsDBNull(5))
+                                    tempNode.embedded = null;
+                                else
+                                    tempNode.embedded = reader.GetString(5);
+                            }
 
-                    if (!reader.IsDBNull(11))
-                    {
-                        tempNode.File = new AVM.Types.FileData();
-                        tempNode.File.Uri = new Uri(reader.GetString(11));
-                        if (!reader.IsDBNull(12))
-                            tempNode.File.Video_Encoding = reader.GetString(12);
-                        if (!reader.IsDBNull(13))
-                            tempNode.File.Audio_Encoding = reader.GetString(13);
-                        if (!reader.IsDBNull(14))
-                            tempNode.File.Container = reader.GetString(14);
-                    }
-                    tempList.Add(tempNode);
+                            if (!reader.IsDBNull(6))
+                                tempNode.Comment = reader.GetString(6);
+
+                            if (!reader.IsDBNull(7))
+                                if ((reader.GetInt16(8) > -1) ||
+                                    (reader.GetInt16(9) > -1) ||
+                                    (!reader.IsDBNull(7)))
+                                {
+                                    tempNode.Episode = new AVM.Types.EpisodeInfo();
+                                    tempNode.Episode.EpisodeNumber = reader.GetInt16(7);
+                                    tempNode.Episode.SeasonNumber = reader.GetInt16(8);
+                                    tempNode.Episode.LastWatched = (reader.GetInt16(9) != 0);
+                                    if (!reader.IsDBNull(10))
+                                        tempNode.Episode.EpisodeName = reader.GetString(10);
+                                }
+
+                            if (!reader.IsDBNull(11))
+                            {
+                                tempNode.File = new AVM.Types.FileData();
+                                tempNode.File.Uri = new Uri(reader.GetString(11));
+                                if (!reader.IsDBNull(12))
+                                    tempNode.File.Video_Encoding = reader.GetString(12);
+                                if (!reader.IsDBNull(13))
+                                    tempNode.File.Audio_Encoding = reader.GetString(13);
+                                if (!reader.IsDBNull(14))
+                                    tempNode.File.Container = reader.GetString(14);
+                            }
+                            tempList.Add(tempNode);
+                        }
                 }
+            }
             return tempList;
         }
 
@@ -641,52 +686,51 @@ namespace AVM
             foreach (AVM.Types.Node node in nodes)
             {
                 // Create strings to make the data adapter
-                string identifiers = "name, node_id, parent_group_id, type, url, embedded, comment";
-                string data = "@name, @node_id, @parent_group_id, @type, @url, @embedded, @comment";
+                StringBuilder insertBuilder = new StringBuilder("INSERT INTO nodes (name, node_id, parent_group_id, type, url, embedded, comment");
+                StringBuilder dataBuilder = new StringBuilder("@name, @node_id, @parent_group_id, @type, @url, @embedded, @comment");
                 if (node.IsFile)
                 {
-                    identifiers += ", uri, video_encoding, audio_encoding, container";
-                    data += ", @uri, @video_encoding, @audio_encoding, @container";
+                    insertBuilder.Append(", uri, video_encoding, audio_encoding, container");
+                    dataBuilder.Append(", @uri, @video_encoding, @audio_encoding, @container");
                 }
                 if (node.IsEpisode)
                 {
-                    identifiers += ", episode_number, season_number, last_watched, episode_name";
-                    data += ", @episode_number, @season_number, @last_watched, @episode_name";
+                    insertBuilder.Append(", episode_number, season_number, last_watched, episode_name");
+                    dataBuilder.Append(", @episode_number, @season_number, @last_watched, @episode_name");
                 }
+                insertBuilder.Append(") VALUES (");
+                insertBuilder.Append(dataBuilder.ToString());
+                insertBuilder.Append(");");
 
-                // Create the adapter
-                SQLiteDataAdapter adapter = new SQLiteDataAdapter();
-                adapter.InsertCommand = new SQLiteCommand(
-                    "INSERT INTO nodes (" + identifiers + ") " +
-                    "VALUES (" + data + ");",
-                    trans.Connection);
-
-                // Fill the adapter with values
-                adapter.InsertCommand.Parameters.AddWithValue("@name", node.Name);
-                adapter.InsertCommand.Parameters.AddWithValue("@node_id", node.Id);
-                adapter.InsertCommand.Parameters.AddWithValue("@parent_group_id", node.ParentId);
-                adapter.InsertCommand.Parameters.AddWithValue("@type", node.UrlType);
-                adapter.InsertCommand.Parameters.AddWithValue("@url", node.Url);
-                adapter.InsertCommand.Parameters.AddWithValue("@embedded", node.embedded);
-                adapter.InsertCommand.Parameters.AddWithValue("@comment", node.Comment);
-                if (node.IsFile)
+                using (SQLiteCommand command = new SQLiteCommand(_database))
                 {
-                    adapter.InsertCommand.Parameters.AddWithValue("@uri", node.File.Uri.ToString());
-                    adapter.InsertCommand.Parameters.AddWithValue("@video_encoding", node.File.Video_Encoding);
-                    adapter.InsertCommand.Parameters.AddWithValue("@audio_encoding", node.File.Audio_Encoding);
-                    adapter.InsertCommand.Parameters.AddWithValue("@container", node.File.Container);
-                }
-                if (node.IsEpisode)
-                {
-                    adapter.InsertCommand.Parameters.AddWithValue("@episode_number", node.Episode.EpisodeNumber);
-                    adapter.InsertCommand.Parameters.AddWithValue("@season_number", node.Episode.SeasonNumber);
-                    adapter.InsertCommand.Parameters.AddWithValue("@last_watched", node.Episode.LastWatched);
-                    adapter.InsertCommand.Parameters.AddWithValue("@episode_name", node.Episode.EpisodeName);
-                }
+                    command.CommandText = insertBuilder.ToString();
 
-                adapter.InsertCommand.Transaction = trans;
-                adapter.InsertCommand.ExecuteNonQuery();
-            
+                    command.Parameters.AddWithValue("@name", node.Name);
+                    command.Parameters.AddWithValue("@node_id", node.Id);
+                    command.Parameters.AddWithValue("@parent_group_id", node.ParentId);
+                    command.Parameters.AddWithValue("@type", node.UrlType);
+                    command.Parameters.AddWithValue("@url", node.Url);
+                    command.Parameters.AddWithValue("@embedded", node.embedded);
+                    command.Parameters.AddWithValue("@comment", node.Comment);
+                    if (node.IsFile)
+                    {
+                        command.Parameters.AddWithValue("@uri", node.File.Uri.ToString());
+                        command.Parameters.AddWithValue("@video_encoding", node.File.Video_Encoding);
+                        command.Parameters.AddWithValue("@audio_encoding", node.File.Audio_Encoding);
+                        command.Parameters.AddWithValue("@container", node.File.Container);
+                    }
+                    if (node.IsEpisode)
+                    {
+                        command.Parameters.AddWithValue("@episode_number", node.Episode.EpisodeNumber);
+                        command.Parameters.AddWithValue("@season_number", node.Episode.SeasonNumber);
+                        command.Parameters.AddWithValue("@last_watched", node.Episode.LastWatched);
+                        command.Parameters.AddWithValue("@episode_name", node.Episode.EpisodeName);
+                    }
+
+                    command.Transaction = trans;
+                    command.ExecuteNonQuery();
+                }
             }
 
             trans.Commit();
@@ -703,52 +747,54 @@ namespace AVM
             SQLiteTransaction trans = _database.BeginTransaction();
             
             // Create strings to make the data adapter.
-            string identifiers = "name, parent_group_id, type, url, embedded, comment";
-            string data = "@name, @parent_group_id, @type, @url, @embedded, @comment";
+            StringBuilder insertBuilder = new StringBuilder("INSERT INTO nodes (name, parent_group_id, type, url, embedded, comment");
+            StringBuilder dataBuilder = new StringBuilder("@name, @parent_group_id, @type, @url, @embedded, @comment");
             if (node.IsFile)
             {
-                identifiers += ", uri, video_encoding, audio_encoding, container";
-                data += ", @uri, @video_encoding, @audio_encoding, @container";
+                insertBuilder.Append(", uri, video_encoding, audio_encoding, container");
+                dataBuilder.Append(", @uri, @video_encoding, @audio_encoding, @container");
             }
             if (node.IsEpisode)
             {
-                identifiers += ", episode_number, season_number, last_watched, episode_name";
-                data += ", @episode_number, @season_number, @last_watched, @episode_name";
+                insertBuilder.Append(", episode_number, season_number, last_watched, episode_name");
+                dataBuilder.Append(", @episode_number, @season_number, @last_watched, @episode_name");
             }
+            insertBuilder.Append(") VALUES (");
+            insertBuilder.Append(dataBuilder.ToString());
+            insertBuilder.Append(");");
 
             // Create the adapter.
-            SQLiteCommand command = new SQLiteCommand(
-                "INSERT INTO nodes (" + identifiers + ") " +
-                "VALUES (" + data + ");",
-                trans.Connection);
-
-            // Fill the adapter with values.
-            command.Parameters.AddWithValue("@name", node.Name);
-            command.Parameters.AddWithValue("@parent_group_id", currentGroup);
-            command.Parameters.AddWithValue("@type", node.UrlType);
-            command.Parameters.AddWithValue("@url", node.Url);
-            command.Parameters.AddWithValue("@embedded", node.embedded);
-            command.Parameters.AddWithValue("@comment", node.Comment);
-            // If file populate the SQLiteDataAdapter with file data.
-            if (node.IsFile)
+            using (SQLiteCommand command = new SQLiteCommand(_database))
             {
-                command.Parameters.AddWithValue("@uri", node.File.Uri.ToString());
-                command.Parameters.AddWithValue("@video_encoding", node.File.Video_Encoding);
-                command.Parameters.AddWithValue("@audio_encoding", node.File.Audio_Encoding);
-                command.Parameters.AddWithValue("@container", node.File.Container);
-            }
-            // If episode populate the SQLiteDataAdapter with episode data.
-            if (node.IsEpisode)
-            {
-                command.Parameters.AddWithValue("@episode_number", node.Episode.EpisodeNumber);
-                command.Parameters.AddWithValue("@season_number", node.Episode.SeasonNumber);
-                command.Parameters.AddWithValue("@last_watched", node.Episode.LastWatched);
-                command.Parameters.AddWithValue("@episode_name", node.Episode.EpisodeName);
-            }
+                command.CommandText = insertBuilder.ToString();
 
-            command.Transaction = trans;
-            command.ExecuteNonQuery();
-            
+                // Fill the adapter with values.
+                command.Parameters.AddWithValue("@name", node.Name);
+                command.Parameters.AddWithValue("@parent_group_id", currentGroup);
+                command.Parameters.AddWithValue("@type", node.UrlType);
+                command.Parameters.AddWithValue("@url", node.Url);
+                command.Parameters.AddWithValue("@embedded", node.embedded);
+                command.Parameters.AddWithValue("@comment", node.Comment);
+                // If file populate the SQLiteDataAdapter with file data.
+                if (node.IsFile)
+                {
+                    command.Parameters.AddWithValue("@uri", node.File.Uri.ToString());
+                    command.Parameters.AddWithValue("@video_encoding", node.File.Video_Encoding);
+                    command.Parameters.AddWithValue("@audio_encoding", node.File.Audio_Encoding);
+                    command.Parameters.AddWithValue("@container", node.File.Container);
+                }
+                // If episode populate the SQLiteDataAdapter with episode data.
+                if (node.IsEpisode)
+                {
+                    command.Parameters.AddWithValue("@episode_number", node.Episode.EpisodeNumber);
+                    command.Parameters.AddWithValue("@season_number", node.Episode.SeasonNumber);
+                    command.Parameters.AddWithValue("@last_watched", node.Episode.LastWatched);
+                    command.Parameters.AddWithValue("@episode_name", node.Episode.EpisodeName);
+                }
+
+                command.Transaction = trans;
+                command.ExecuteNonQuery();
+            }
             trans.Commit();
             _database.Close();
         }
@@ -764,56 +810,50 @@ namespace AVM
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
             // Fills node.
-            string updateString = "name = @name" +
-                                  ", type = @type" +
-                                  ", url = @url" +
-                                  ", embedded = @embedded" +
-                                  ", comment = @comment";
+            StringBuilder updateString = new StringBuilder("UPDATE nodes SET name = @name, type = @type, url = @url, embedded = @embedded, comment = @comment");
+
             if (node.IsFile)
             {
-                updateString += ", uri = @uri" +
-                                ", video_encoding = @video_encoding" +
-                                ", audio_encoding = @audio_encoding" +
-                                ", container = @container";
+                updateString.Append(", uri = @uri, video_encoding = @video_encoding, audio_encoding = @audio_encoding, container = @container");
             }
             // If episode populate the updateString with episode data.
             if (node.IsEpisode)
             {
-                updateString += ", episode_number = @episode_number" +
-                                ", season_number = @season_number" +
-                                ", last_watched = @last_watched" +
-                                ", episode_name = @episode_name";
+                updateString.Append(", episode_number = @episode_number, season_number = @season_number, last_watched = @last_watched, episode_name = @episode_name");
             }
 
-            // Create the adapter.
-            SQLiteCommand command = new SQLiteCommand(
-                "UPDATE nodes SET " + updateString +
-                " WHERE node_id = " + old_node.Id + ";",
-                trans.Connection);
+            updateString.Append(" WHERE node_id = @old_node_id;");
 
-            command.Parameters.AddWithValue("@name", node.Name);
-            command.Parameters.AddWithValue("@type", node.UrlType);
-            command.Parameters.AddWithValue("@url", node.Url);
-            command.Parameters.AddWithValue("@embedded", node.embedded);
-            command.Parameters.AddWithValue("@comment", node.Comment);
-            // If file populate the SQLiteDataAdapter with file data.
-            if (node.IsFile)
+            using (SQLiteCommand command = new SQLiteCommand(_database))
             {
-                command.Parameters.AddWithValue("@uri", node.File.Uri);
-                command.Parameters.AddWithValue("@video_encoding", node.File.Video_Encoding);
-                command.Parameters.AddWithValue("@audio_encoding", node.File.Audio_Encoding);
-                command.Parameters.AddWithValue("@container", node.File.Container);
+                command.CommandText = updateString.ToString();
+
+                command.Parameters.AddWithValue("@name", node.Name);
+                command.Parameters.AddWithValue("@type", node.UrlType);
+                command.Parameters.AddWithValue("@url", node.Url);
+                command.Parameters.AddWithValue("@embedded", node.embedded);
+                command.Parameters.AddWithValue("@comment", node.Comment);
+                command.Parameters.AddWithValue("@old_node_id", old_node.Id);
+                // If file populate the SQLiteDataAdapter with file data.
+                if (node.IsFile)
+                {
+                    command.Parameters.AddWithValue("@uri", node.File.Uri);
+                    command.Parameters.AddWithValue("@video_encoding", node.File.Video_Encoding);
+                    command.Parameters.AddWithValue("@audio_encoding", node.File.Audio_Encoding);
+                    command.Parameters.AddWithValue("@container", node.File.Container);
+                }
+                // If episode populate the SQLiteDataAdapter with episode data.
+                if (node.IsEpisode)
+                {
+                    command.Parameters.AddWithValue("@episode_number", node.Episode.EpisodeNumber);
+                    command.Parameters.AddWithValue("@season_number", node.Episode.SeasonNumber);
+                    command.Parameters.AddWithValue("@last_watched", node.Episode.LastWatched);
+                    command.Parameters.AddWithValue("@episode_name", node.Episode.EpisodeName);
+                }
+                command.Transaction = trans;
+                command.ExecuteNonQuery();
             }
-            // If episode populate the SQLiteDataAdapter with episode data.
-            if (node.IsEpisode)
-            {
-                command.Parameters.AddWithValue("@episode_number", node.Episode.EpisodeNumber);
-                command.Parameters.AddWithValue("@season_number", node.Episode.SeasonNumber);
-                command.Parameters.AddWithValue("@last_watched", node.Episode.LastWatched);
-                command.Parameters.AddWithValue("@episode_name", node.Episode.EpisodeName);
-            }
-            command.Transaction = trans;
-            command.ExecuteNonQuery();
+
             trans.Commit();
             _database.Close();
 
@@ -832,9 +872,12 @@ namespace AVM
         private void removeSingleNode(AVM.Types.Node node,
                                       SQLiteTransaction trans)
         {
-            SQLiteCommand command = new SQLiteCommand("DELETE FROM nodes WHERE node_id = " + node.Id + ";",
-                   _database, trans);
-            command.ExecuteNonQuery();
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "DELETE FROM nodes WHERE node_id = @nodeId;";
+                command.Parameters.AddWithValue("@nodeId", node.Id);
+                command.ExecuteNonQuery();
+            }
         }
 
         /// <summary>
@@ -858,11 +901,13 @@ namespace AVM
         {
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand(
-                    "UPDATE nodes SET watched = " + node.TimesPlayed +
-                    " WHERE node_id = " + node.Id + ";",
-                    _database, trans);
-            command.ExecuteNonQuery();
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "UPDATE nodes SET watched = @nodeTimesPlayed WHERE node_id = @nodeId;";
+                command.Parameters.AddWithValue("@nodeTimesPlayed", node.TimesPlayed);
+                command.Parameters.AddWithValue("@nodeId", node.Id);
+                command.ExecuteNonQuery();
+            }
             trans.Commit();
             _database.Close();
         }
@@ -882,66 +927,70 @@ namespace AVM
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
             nodes.Clear();
-            string commandString = "SELECT * FROM nodes " +
-                            "WHERE (name LIKE @query" +
-                            " OR episode_name LIKE @query)";
+            StringBuilder commandString = new StringBuilder("SELECT * FROM nodes WHERE (name LIKE @query OR episode_name LIKE @query)");
             // If no parent then parent should be sent as -1
             if (searchAll)
-                commandString += ";";
+                commandString.Append(";");
             else
-                commandString += "AND parent_group_id = @parent_group_id;";
-            
-            SQLiteCommand command = new SQLiteCommand(commandString, _database, trans);
-            command.Parameters.AddWithValue("@query", "%" + query + "%");
-            command.Parameters.AddWithValue("@parent_group_id", currentGroup);
-            
-            SQLiteDataReader reader = command.ExecuteReader();
-            if (reader.HasRows)
-                while (reader.Read())
+                commandString.Append("AND parent_group_id = @parent_group_id;");
+
+            using (SQLiteCommand command = new SQLiteCommand(commandString.ToString(), _database, trans))
+            {
+                command.Parameters.AddWithValue("@query", "%" + query + "%");
+                command.Parameters.AddWithValue("@parent_group_id", currentGroup);
+
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    AVM.Types.Node tempNode = new AVM.Types.Node();
-                    tempNode.Id = reader.GetInt64(0);
-                    tempNode.Name = reader.GetString(1);
-                    tempNode.TimesPlayed = reader.GetInt32(2);
-                    tempNode.UrlType = reader.GetInt16(3);
-                    if (tempNode.UrlType > 0)
+                    if (reader.HasRows)
                     {
-                        tempNode.Url = reader.GetString(4);
-                        if (reader.IsDBNull(5))
-                            tempNode.embedded = null;
-                        else
-                            tempNode.embedded = reader.GetString(5);
-                    }
-
-                    if (!reader.IsDBNull(6))
-                        tempNode.Comment = reader.GetString(6);
-
-                    if (!reader.IsDBNull(7))
-                        if ((reader.GetInt16(8) > -1) ||
-                            (reader.GetInt16(9) > -1) ||
-                            (!reader.IsDBNull(7)))
+                        while (reader.Read())
                         {
-                            tempNode.Episode = new AVM.Types.EpisodeInfo();
-                            tempNode.Episode.EpisodeNumber = reader.GetInt16(7);
-                            tempNode.Episode.SeasonNumber = reader.GetInt16(8);
-                            tempNode.Episode.LastWatched = (reader.GetInt16(9) != 0);
-                            if (!reader.IsDBNull(10))
-                                tempNode.Episode.EpisodeName = reader.GetString(10);
-                        }
+                            AVM.Types.Node tempNode = new AVM.Types.Node();
+                            tempNode.Id = reader.GetInt64(0);
+                            tempNode.Name = reader.GetString(1);
+                            tempNode.TimesPlayed = reader.GetInt32(2);
+                            tempNode.UrlType = reader.GetInt16(3);
+                            if (tempNode.UrlType > 0)
+                            {
+                                tempNode.Url = reader.GetString(4);
+                                if (reader.IsDBNull(5))
+                                    tempNode.embedded = null;
+                                else
+                                    tempNode.embedded = reader.GetString(5);
+                            }
 
-                    if (!reader.IsDBNull(11))
-                    {
-                        tempNode.File = new AVM.Types.FileData();
-                        tempNode.File.Uri = new Uri(reader.GetString(11));
-                        if (!reader.IsDBNull(12))
-                            tempNode.File.Video_Encoding = reader.GetString(12);
-                        if (!reader.IsDBNull(13))
-                            tempNode.File.Audio_Encoding = reader.GetString(13);
-                        if (!reader.IsDBNull(14))
-                            tempNode.File.Container = reader.GetString(14);
+                            if (!reader.IsDBNull(6))
+                                tempNode.Comment = reader.GetString(6);
+
+                            if (!reader.IsDBNull(7))
+                                if ((reader.GetInt16(8) > -1) ||
+                                    (reader.GetInt16(9) > -1) ||
+                                    (!reader.IsDBNull(7)))
+                                {
+                                    tempNode.Episode = new AVM.Types.EpisodeInfo();
+                                    tempNode.Episode.EpisodeNumber = reader.GetInt16(7);
+                                    tempNode.Episode.SeasonNumber = reader.GetInt16(8);
+                                    tempNode.Episode.LastWatched = (reader.GetInt16(9) != 0);
+                                    if (!reader.IsDBNull(10))
+                                        tempNode.Episode.EpisodeName = reader.GetString(10);
+                                }
+
+                            if (!reader.IsDBNull(11))
+                            {
+                                tempNode.File = new AVM.Types.FileData();
+                                tempNode.File.Uri = new Uri(reader.GetString(11));
+                                if (!reader.IsDBNull(12))
+                                    tempNode.File.Video_Encoding = reader.GetString(12);
+                                if (!reader.IsDBNull(13))
+                                    tempNode.File.Audio_Encoding = reader.GetString(13);
+                                if (!reader.IsDBNull(14))
+                                    tempNode.File.Container = reader.GetString(14);
+                            }
+                            nodes.Add(tempNode);
+                        }
                     }
-                    nodes.Add(tempNode);
                 }
+            }
             trans.Rollback();
             _database.Close();
         }
@@ -956,17 +1005,20 @@ namespace AVM
 
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand(
-                "SELECT max(node_id) FROM nodes;",
-                _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            reader.Read();
-            if (reader.IsDBNull(0))
-                last_id = 0;
-            else
-                last_id = reader.GetInt64(0);
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "SELECT max(node_id) FROM nodes;";
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    reader.Read();
+                    if (reader.IsDBNull(0))
+                        last_id = 0;
+                    else
+                        last_id = reader.GetInt64(0);
+                }
+            }
+            
             _database.Close();
-
             return last_id;
         }
 
@@ -979,20 +1031,21 @@ namespace AVM
             // Make it so no Nodes in the same group are marked as last_watched
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand(
-                "UPDATE nodes SET last_watched = 0 WHERE name = @name;",
-                _database,
-                trans);
-            command.Parameters.AddWithValue("@name", node.Name);
-            command.ExecuteNonQuery();
-            
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "UPDATE nodes SET last_watched = 0 WHERE name = @name;";
+                command.Parameters.AddWithValue("@name", node.Name);
+                command.ExecuteNonQuery();
+            }
+
             // Mark current node as last_watched
-            command = new SQLiteCommand(
-                "UPDATE nodes SET last_watched = 1 WHERE node_id = @node_id;",
-                _database,
-                trans);
-            command.Parameters.AddWithValue("@node_id", node.Id);
-            command.ExecuteNonQuery();
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "UPDATE nodes SET last_watched = 1 WHERE node_id = @node_id;";
+                command.Parameters.AddWithValue("@node_id", node.Id);
+                command.ExecuteNonQuery();
+            }    
+
             trans.Commit();
             _database.Close();
         }
@@ -1007,14 +1060,18 @@ namespace AVM
         {
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand(
-                    "DELETE FROM nodes;",
-                    _database, trans);
-            command.ExecuteNonQuery();
-            command = new SQLiteCommand(
-                    "DELETE FROM groups;",
-                    _database, trans);
-            command.ExecuteNonQuery();
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "DELETE FROM nodes;";
+                command.ExecuteNonQuery();
+            }
+
+            using (SQLiteCommand command = new SQLiteCommand(_database))
+            {
+                command.CommandText = "DELETE FROM groups;";
+                command.ExecuteNonQuery();
+            }
+
             trans.Commit();
             _database.Close();
         }
@@ -1025,27 +1082,32 @@ namespace AVM
         /// </summary>
         /// <param name="starting_id">Group to make breadcrumbs from.</param>
         /// <returns></returns>
-        public string findBreadcrumbs(long starting_id)
+        public string findBreadcrumbs(long startingId)
         {
             string crums = "";
             Stack<AVM.Types.Group> groups = new Stack<AVM.Types.Group>();
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
 
-            long group_id = starting_id;
-            while (group_id > 0)
+            long groupId = startingId;
+            while (groupId > 0)
             {
-                SQLiteCommand command = new SQLiteCommand(
-                    "SELECT * FROM groups WHERE group_id = " + group_id.ToString() + ";",
-                    _database, trans);
-                SQLiteDataReader reader = command.ExecuteReader();
-                reader.Read();
-                AVM.Types.Group group = new AVM.Types.Group();
-                group.Id = reader.GetInt64(0);
-                group.Name = reader.GetString(1);
-                group.ParentId = reader.GetInt64(2);
-                group_id = group.ParentId;
-                groups.Push(group);
+                using (SQLiteCommand command = new SQLiteCommand(_database))
+                {
+                    command.CommandText = "SELECT * FROM groups WHERE group_id = @groupId;";
+                    command.Parameters.AddWithValue("@groupId", groupId);
+
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        reader.Read();
+                        AVM.Types.Group group = new AVM.Types.Group();
+                        group.Id = reader.GetInt64(0);
+                        group.Name = reader.GetString(1);
+                        group.ParentId = reader.GetInt64(2);
+                        groupId = group.ParentId;
+                        groups.Push(group);
+                    }
+                }
             }
 
             while (groups.Count > 0)
@@ -1066,5 +1128,10 @@ namespace AVM
             _database.Close();
         }
         #endregion
+
+        public void Dispose()
+        {
+            _database.Dispose();
+        }
     }
 }

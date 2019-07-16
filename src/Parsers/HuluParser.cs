@@ -41,6 +41,15 @@ namespace AVM.Parsers
         private string _embedded = null;
         private string _videoType = null; // movie, video, tv, hd, excerpt
 
+        private const string DESC_PRE_MATCH = "<meta name=\"description\"";
+        private const string DESC_POST_MATCH = "<link";
+
+        private const string TITLE_PRE_MATCH = "<meta property=\"og:title\" content=\"";
+        private const string TITLE_POST_MATCH = "\"/>";
+
+        private const string EMBED_PRE_MATCH = "<link rel=\"media:video\" href=\"";
+        private const string EMBED_POST_MATCH = "\" />";
+
         #region Properties
         /// <summary>
         /// The title for the Hulu video.
@@ -126,114 +135,20 @@ namespace AVM.Parsers
                 string doc = client.DownloadString(link);
                 int index;
 
-                // Figure out what type of hulu video it is
-                index = doc.IndexOf("<div class=\"description\">");
-                string disc = doc.Substring(index + 25);
-                index = disc.IndexOf("<span");
-                disc = disc.Substring(0, index);
+                // Figure out what the title is
+                index = doc.IndexOf(TITLE_PRE_MATCH);
+                string title = doc.Substring(index + TITLE_PRE_MATCH.Length);
+                index = title.IndexOf(TITLE_POST_MATCH);
+                _title = title.Substring(0, index);
 
-                // Currently all HD is tv but does not parse the same
-                if (Regex.IsMatch(disc, ".*Full Episode.*"))
-                    _videoType = "hd";
-                if (Regex.IsMatch(disc, ".*Season.*"))
-                    _videoType = "tv";
-                if (Regex.IsMatch(disc, ".*Feature Film.*"))
-                    _videoType = "movie";
-                if (Regex.IsMatch(disc, ".*Excerpt.*"))
-                    _videoType = "excerpt";
-                if (Regex.IsMatch(disc, ".*Video.*"))
-                    _videoType = "video";
-
-                switch ((string)_videoType)
-                {
-                    case "hd":
-                        index = doc.IndexOf("<h2 class=\"show-name\" style=\"margin-bottom:3px;\">");
-                        string hold = doc.Substring(index + 49);
-                        index = hold.IndexOf("</h2>");
-                        hold = hold.Substring(0, index);
-
-                        string[] holdArr = hold.Split('-');
-                        if (holdArr.Length > 1)
-                        {
-                            _title = holdArr[0];
-                            _episodeTitle = holdArr[1];
-                            _episodeTitle = _episodeTitle.TrimStart(' ');
-                        }
-                        else
-                            _title = holdArr[0];
-                        break;
-
-                    case "movie":
-                        index = doc.IndexOf("<title>Hulu - ");
-                        _title = doc.Substring(index + 14);
-                        index = _title.IndexOf(" - ");
-                        _title = _title.Substring(0, index);
-                        break;
-                    case "video":
-                    case "excerpt":
-                        index = doc.IndexOf("<title>Hulu - ");
-                        _title = doc.Substring(index + 14);
-                        index = _title.IndexOf("</title>");
-                        _title = _title.Substring(0, index);
-                        break;
-
-                    case "tv":
-                        index = doc.IndexOf("<title>Hulu - ");
-                        string holdTV = doc.Substring(index + 14);
-                        index = holdTV.IndexOf(" - ");
-                        holdTV = holdTV.Substring(0, index);
-
-                        // Get the title and episode title if it exists
-                        string[] holdTVArray = holdTV.Split(':');
-                        if (holdTVArray.Length > 1)
-                        {
-                            _title = holdTVArray[0];
-                            _episodeTitle = holdTVArray[1];
-                            _episodeTitle = _episodeTitle.TrimStart(' ');
-                        }
-                        else
-                            _title = holdTVArray[0];
-
-                        // get season number
-                        index = disc.IndexOf("Season ");
-                        string holderSeasonNumber = disc.Substring(index + 7);
-                        index = holderSeasonNumber.IndexOf(":");
-                        holderSeasonNumber = holderSeasonNumber.Substring(0, index);
-                        index = holderSeasonNumber.IndexOf(" ");
-                        holderSeasonNumber = holderSeasonNumber.Substring(0, index);
-                        if (!int.TryParse(holderSeasonNumber, out _seasonNumber))
-                            System.Windows.Forms.MessageBox.Show(
-                                "Warning: Could not read season number",
-                                "Warning",
-                                System.Windows.Forms.MessageBoxButtons.OK,
-                                System.Windows.Forms.MessageBoxIcon.Exclamation);
-
-                        // get episode number
-                        index = disc.IndexOf("Ep. ");
-                        string holderEpisodeNumber = disc.Substring(index + 4);
-                        if (!int.TryParse(holderEpisodeNumber, out _episodeNumber))
-                            System.Windows.Forms.MessageBox.Show(
-                                "Warning: Could not read episode number",
-                                "Warning",
-                                System.Windows.Forms.MessageBoxButtons.OK,
-                                System.Windows.Forms.MessageBoxIcon.Exclamation);
-                        break;
-
-                    default:
-                        System.Windows.Forms.MessageBox.Show(
-                                "Warning: Link could not be parsed",
-                                "Warning",
-                                System.Windows.Forms.MessageBoxButtons.OK,
-                                System.Windows.Forms.MessageBoxIcon.Exclamation);
-                        break;
-                }
+                //ParseDetails(doc);
 
                 // If the video is embedable then save the embedded link.
-                index = doc.IndexOf("<link rel=\"video_src\" href=\"");
+                index = doc.IndexOf(EMBED_PRE_MATCH);
                 if (index > -1) // if not embedable temp will be null
                 {
-                    _embedded = doc.Substring(index + 28);
-                    index = _embedded.IndexOf("\" />");
+                    _embedded = doc.Substring(index + EMBED_PRE_MATCH.Length);
+                    index = _embedded.IndexOf(EMBED_POST_MATCH);
                     _embedded = _embedded.Substring(0, index);
                 }
             }
@@ -241,6 +156,111 @@ namespace AVM.Parsers
                 return false;
 
             return true;
+        }
+
+        private void ParseDetails(string doc)
+        {
+            // Figure out what type of hulu video it is
+            int index = doc.IndexOf(DESC_PRE_MATCH);
+            string disc = doc.Substring(index + DESC_PRE_MATCH.Length);
+            index = disc.IndexOf(DESC_POST_MATCH);
+            disc = disc.Substring(0, index);
+
+            // Currently all HD is tv but does not parse the same
+            if (Regex.IsMatch(disc, ".*Full Episode.*"))
+                _videoType = "hd";
+            if (Regex.IsMatch(disc, ".*Season.*"))
+                _videoType = "tv";
+            if (Regex.IsMatch(disc, ".*Feature Film.*"))
+                _videoType = "movie";
+            if (Regex.IsMatch(disc, ".*Excerpt.*"))
+                _videoType = "excerpt";
+            if (Regex.IsMatch(disc, ".*Video.*"))
+                _videoType = "video";
+
+            switch ((string)_videoType)
+            {
+                case "hd":
+                    index = doc.IndexOf("<h2 class=\"show-name\" style=\"margin-bottom:3px;\">");
+                    string hold = doc.Substring(index + 49);
+                    index = hold.IndexOf("</h2>");
+                    hold = hold.Substring(0, index);
+
+                    string[] holdArr = hold.Split('-');
+                    if (holdArr.Length > 1)
+                    {
+                        _title = holdArr[0];
+                        _episodeTitle = holdArr[1];
+                        _episodeTitle = _episodeTitle.TrimStart(' ');
+                    }
+                    else
+                        _title = holdArr[0];
+                    break;
+
+                case "movie":
+                    index = doc.IndexOf("<title>Hulu - ");
+                    _title = doc.Substring(index + 14);
+                    index = _title.IndexOf(" - ");
+                    _title = _title.Substring(0, index);
+                    break;
+                case "video":
+                case "excerpt":
+                    index = doc.IndexOf("<title>Hulu - ");
+                    _title = doc.Substring(index + 14);
+                    index = _title.IndexOf("</title>");
+                    _title = _title.Substring(0, index);
+                    break;
+
+                case "tv":
+                    index = doc.IndexOf("<title>Hulu - ");
+                    string holdTV = doc.Substring(index + 14);
+                    index = holdTV.IndexOf(" - ");
+                    holdTV = holdTV.Substring(0, index);
+
+                    // Get the title and episode title if it exists
+                    string[] holdTVArray = holdTV.Split(':');
+                    if (holdTVArray.Length > 1)
+                    {
+                        _title = holdTVArray[0];
+                        _episodeTitle = holdTVArray[1];
+                        _episodeTitle = _episodeTitle.TrimStart(' ');
+                    }
+                    else
+                        _title = holdTVArray[0];
+
+                    // get season number
+                    index = disc.IndexOf("Season ");
+                    string holderSeasonNumber = disc.Substring(index + 7);
+                    index = holderSeasonNumber.IndexOf(":");
+                    holderSeasonNumber = holderSeasonNumber.Substring(0, index);
+                    index = holderSeasonNumber.IndexOf(" ");
+                    holderSeasonNumber = holderSeasonNumber.Substring(0, index);
+                    if (!int.TryParse(holderSeasonNumber, out _seasonNumber))
+                        System.Windows.Forms.MessageBox.Show(
+                            "Warning: Could not read season number",
+                            "Warning",
+                            System.Windows.Forms.MessageBoxButtons.OK,
+                            System.Windows.Forms.MessageBoxIcon.Exclamation);
+
+                    // get episode number
+                    index = disc.IndexOf("Ep. ");
+                    string holderEpisodeNumber = disc.Substring(index + 4);
+                    if (!int.TryParse(holderEpisodeNumber, out _episodeNumber))
+                        System.Windows.Forms.MessageBox.Show(
+                            "Warning: Could not read episode number",
+                            "Warning",
+                            System.Windows.Forms.MessageBoxButtons.OK,
+                            System.Windows.Forms.MessageBoxIcon.Exclamation);
+                    break;
+
+                default:
+                    System.Windows.Forms.MessageBox.Show(
+                            "Warning: Link could not be parsed",
+                            "Warning",
+                            System.Windows.Forms.MessageBoxButtons.OK,
+                            System.Windows.Forms.MessageBoxIcon.Exclamation);
+                    break;
+            }
         }
         #endregion
     }

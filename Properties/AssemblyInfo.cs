@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("A Video Manager")]
-[assembly: AssemblyCopyright("Copyright ©  2008-2009")]
+[assembly: AssemblyCopyright("Copyright ©  2008-2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
