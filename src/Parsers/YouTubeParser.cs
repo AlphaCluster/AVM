@@ -38,7 +38,7 @@ namespace AVM.Parsers
 
         #region Properties
         /// <summary>
-        /// This is the title of the YouTube video.
+        /// The title of the YouTube video.
         /// </summary>
         public string Title
         {
@@ -46,7 +46,7 @@ namespace AVM.Parsers
         }
 
         /// <summary>
-        /// This is the embedded string for the YouTube video.
+        /// The embedded string for the YouTube video.
         /// </summary>
         public string Embedded
         {
@@ -54,7 +54,7 @@ namespace AVM.Parsers
         }
 
         /// <summary>
-        /// This is the url for the YouTube video.
+        /// The url for the YouTube video.
         /// </summary>
         public string Url
         {
@@ -78,7 +78,7 @@ namespace AVM.Parsers
 
         #region Methods
         /// <summary>
-        /// 
+        /// Runs the parser on the url that it was created with. Returns false if parse fails.
         /// </summary>
         /// <returns></returns>
         public bool parse()

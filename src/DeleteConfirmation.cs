@@ -14,7 +14,7 @@ namespace AVM
 
         #region Properties
         /// <summary>
-        /// This returns true if the user wants to delete the selected video.
+        /// Returns true if the user wants to delete the selected video.
         /// </summary>
         public bool Delete
         {

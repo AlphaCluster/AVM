@@ -39,16 +39,15 @@ namespace AVM
         public Database db;
         public MainForm main;
         public int currentSelected = 1;
-        private bool _backupTookPlace = false;
+        private bool _restoreTookPlace = false;
 
         #region Properties
         /// <summary>
-        /// Tells if a backup has taken place.
-        /// If it has actions need to be taken to make the main window correct.
+        /// Tells if a restore has taken place so the main window can react.
         /// </summary>
-        public bool BackupTookPlace
+        public bool RestoreTookPlace
         {
-            get { return _backupTookPlace; }
+            get { return _restoreTookPlace; }
         }
         #endregion
 
@@ -85,13 +84,15 @@ namespace AVM
             groupComboBox.SelectedIndex = currentSelected;
             if (db.ParentGroup == 0)
                 groupBackButton.Enabled = false;
+            if (groupComboBox.Items.Count == 0)
+                groupForwardButton.Enabled = false;
             folderPatternTextBox.Text = Properties.Settings.Default.FileNamePattern;
         }
         #endregion
 
         #region Group Methods
         /// <summary>
-        /// This Method makes moves the comboBox forward in the groups list based
+        /// Moves the comboBox forward in the groups list based
         /// off the currently selected group in the ComboBox.
         /// </summary>
         /// <param name="sender"></param>
@@ -103,45 +104,46 @@ namespace AVM
             groupComboBox.SelectedIndex = -1; // So it doesn't break
             db.refreshComboBoxGroups(groupComboBox);
             if (groupComboBox.Items.Count > 0)
-                groupComboBox.SelectedIndex = 1;
+                groupComboBox.SelectedIndex = 0;
+            else
+                groupForwardButton.Enabled = false;
+            groupBackButton.Enabled = true;
         }
 
         /// <summary>
-        /// This Method makes moves the comboBox back in the groups list.
+        /// Moves the comboBox back in the groups list.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void groupBackButton_Click(object sender,
                                            EventArgs e)
         {
-            if (((AVM.Types.Group)groupComboBox.SelectedItem).ParentId != 0)
-            {
-                db.ParentGroup = ((AVM.Types.Group)groupComboBox.SelectedItem).ParentId;
-                if (db.ParentGroup == 0)
-                    groupBackButton.Enabled = false;
-                groupComboBox.SelectedIndex = -1; // So it doesn't break
-                db.refreshComboBoxGroups(groupComboBox);
-                groupComboBox.SelectedIndex = 1;
-            }
+            db.gotoParent();
+            if (db.ParentGroup == 0)
+                groupBackButton.Enabled = false;
+            groupComboBox.SelectedIndex = -1; // So it doesn't break
+            db.refreshComboBoxGroups(groupComboBox);
+            groupComboBox.SelectedIndex = 0;
+            groupForwardButton.Enabled = true;
         }
         #endregion
 
-        #region Backup Methods
+        #region Restore Methods
         /// <summary>
-        /// This opens up the openFileDialog so that the backup xml file can be selected
+        /// Opens up the openFileDialog so that the backup xml file can be selected
         /// to restore data from.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void backupBrowseButton_Click(object sender,
+        private void restoreBrowseButton_Click(object sender,
                                               EventArgs e)
         {
-            backupOpenFileDialog.ShowDialog();
-            backupFileTextBox.Text = backupOpenFileDialog.FileName;
+            restoreOpenFileDialog.ShowDialog();
+            restoreFileTextBox.Text = restoreOpenFileDialog.FileName;
         }
 
         /// <summary>
-        /// Enables and disables the backupAddButton based on if there is
+        /// Enables and disables the restoreAddButton based on if there is
         /// currently a file selected.
         /// </summary>
         /// <param name="sender"></param>
@@ -149,10 +151,10 @@ namespace AVM
         private void topTextBox_TextChanged(object sender,
                                             EventArgs e)
         {
-            if (backupFileTextBox.Text == "")
-                backupAddButton.Enabled = false;
+            if (restoreFileTextBox.Text == "")
+                restoreAddButton.Enabled = false;
             else
-                backupAddButton.Enabled = true;
+                restoreAddButton.Enabled = true;
         }
 
         /// <summary>
@@ -161,24 +163,24 @@ namespace AVM
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void backupAddButton_Click(object sender,
+        private void restoreAddButton_Click(object sender,
                                            EventArgs e)
         {
-            if (backupFileTextBox.Text != "")
+            if (restoreFileTextBox.Text != "")
             {
                 AVM.Parsers.BackupParser parser = new AVM.Parsers.BackupParser(db);
-                parser.ReadXmlBackup(backupFileTextBox.Text);
-                _backupTookPlace = true;
+                parser.ReadXmlBackup(restoreFileTextBox.Text);
+                _restoreTookPlace = true;
                 this.Close();
             }
         }
 
         /// <summary>
-        /// This method just closes the form.
+        /// Closes the form.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void backupCancelButton_Click(object sender,
+        private void restoreCancelButton_Click(object sender,
                                               EventArgs e)
         {
             this.Close();

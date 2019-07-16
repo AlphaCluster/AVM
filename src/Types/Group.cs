@@ -34,7 +34,7 @@ namespace AVM.Types
 
         #region Properties
         /// <summary>
-        /// This is the name of the group.
+        /// The name of the group.
         /// </summary>
         public string Name
         {
@@ -43,7 +43,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This is the group_id for the group.
+        /// The group_id for the group.
         /// Used to identify the group in database lookups.
         /// </summary>
         public long Id
@@ -53,7 +53,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This is the group_id for the parent of the current group.
+        /// The group_id for the parent of the current group.
         /// Used to identify parent group in database lookups.
         /// </summary>
         public long ParentId
@@ -65,7 +65,7 @@ namespace AVM.Types
 
         #region Constructors
         /// <summary>
-        /// Makes a basic group with no name.
+        /// Creates a basic group with no name.
         /// </summary>
         public Group()
         {
@@ -75,7 +75,7 @@ namespace AVM.Types
         /// <summary>
         /// Creates a group with a name and id.
         /// </summary>
-        /// <param name="name">Name of the group.</param>
+        /// <param name="name">The name of the group.</param>
         /// <param name="id">The group_id number.</param>
         public Group(string name,
                      long id)
@@ -87,7 +87,7 @@ namespace AVM.Types
         /// <summary>
         /// Creates a group with a name, id and id of its parent group.
         /// </summary>
-        /// <param name="name">Name of the group.</param>
+        /// <param name="name">The name of the group.</param>
         /// <param name="id">The group_id number.</param>
         /// <param name="parentId">The group_id of this groups parent group.</param>
         public Group(string name,

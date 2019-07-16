@@ -73,7 +73,7 @@ namespace AVM
 
         #region Methods
         /// <summary>
-        /// This merely closes the dialog so that the mainForm can get the NewName.
+        /// Closes the dialog so that the mainForm can get the NewName.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -84,7 +84,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// This closes the form and makes it so NewName will return "".
+        /// Closes the form and makes it so NewName will return "".
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -96,7 +96,7 @@ namespace AVM
         }
         
         /// <summary>
-        /// This saves the text in the TextBox to _name every time it's changed.
+        /// Saves the text in the TextBox to _name every time it's changed.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -107,7 +107,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// This method allows for the user to press "enter" in order to finish
+        /// Allows the user to press "enter" in order to finish
         /// using this dialog.
         /// </summary>
         /// <param name="sender"></param>

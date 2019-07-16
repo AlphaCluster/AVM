@@ -46,7 +46,7 @@ namespace AVM
         #region Properties
         /// <summary>
         /// Returns true if the information in NodeEditor is supposed to be used
-        /// to populate/update the database. If false do nothing with it.
+        /// to populate/update the database. If false does nothing with it.
         /// </summary>
         public bool Successful
         {
@@ -64,8 +64,8 @@ namespace AVM
 
         #region Constructors
         /// <summary>
-        /// This constructor populates the editor with data if a node is provided.
-        /// Also changes the text on buttons based on if the title is "new" or not.
+        /// Populates the editor with data if a node is provided.
+        /// Changes the text on buttons based on if the title is "new" or not.
         /// </summary>
         /// <param name="title">The title of the form. "New" means your adding a new node.</param>
         /// <param name="node">The node to populate the editor weith. Null means new node.</param>
@@ -97,6 +97,11 @@ namespace AVM
                     fileEpisodeNameTextBox.Text = _node.Episode.EpisodeName;
                     youTubeEpisodeNameTextBox.Text = _node.Episode.EpisodeName;
                     huluEpisodeNameTextBox.Text = _node.Episode.EpisodeName;
+                    
+                    // Fill LastWatched for each tab
+                    fileLastWatchedCheckBox.Checked = _node.Episode.LastWatched;
+                    youTubeLastWatchedCheckBox.Checked = _node.Episode.LastWatched;
+                    huluLastWatchedCheckBox.Checked = _node.Episode.LastWatched;
                     
                     // Fill EpisodeNumber in for each tab
                     if (_node.Episode.EpisodeNumber > -1)
@@ -184,7 +189,7 @@ namespace AVM
 
         #region File Functions
         /// <summary>
-        /// This shows the file selection dialog in order to prompt the user for the file
+        /// Shows the file selection dialog in order to prompt the user for the file
         /// they want to add.
         /// </summary>
         /// <param name="sender"></param>
@@ -258,7 +263,7 @@ namespace AVM
         /// <summary>
         /// Parses the YouTube link in the YouTube textbox.
         /// If valid displays GOOD else displays BAD.
-        /// Also if valid will enable the Add buttons.
+        /// If valid will enable the Add buttons.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -297,7 +302,7 @@ namespace AVM
         /// <summary>
         /// Run when user changes the YouTube link.
         /// Changes the test label to Test.
-        /// Also disables the Add buttons.
+        /// Disables the Add buttons.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -317,7 +322,7 @@ namespace AVM
         /// <summary>
         /// Parses the YouTube link in the Hulu textbox.
         /// If valid displays GOOD else displays BAD.
-        /// Also if valid will enable the Add buttons.
+        /// If valid will enable the Add buttons.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -357,9 +362,9 @@ namespace AVM
         }
         
         /// <summary>
-        /// Run when user changes the Hulu link.
+        /// Runs when user changes the Hulu link.
         /// Changes the test label to Test.
-        /// Also disables the Add buttons.
+        /// Disables the Add buttons.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -404,7 +409,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// Update the LastWatched status and every checkbox related to it.
+        /// Updates the LastWatched status and every checkbox related to it.
         /// </summary>
         /// <param name="value">Boolean value representing if it was the last watched episode.</param>
         private void updateLastWatched(bool value)
@@ -418,7 +423,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// Update the EpisodeNumber and every textbox related to it.
+        /// Updates the EpisodeNumber and every textbox related to it.
         /// </summary>
         /// <param name="value">The new Episode Number that is going to be updated.</param>
         private void updateEpisodeNumber(int value)
@@ -441,7 +446,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// Update the SeasonNumber and every textbox related to it.
+        /// Updates the SeasonNumber and every textbox related to it.
         /// </summary>
         /// <param name="value">The new Season Number that is going to be updated.</param>
         private void updateSeasonNumber(int value)
@@ -562,7 +567,7 @@ namespace AVM
 
         #region General Button Functions
         /// <summary>
-        /// Play the web video to test the link.
+        /// Plays the web video to test the link.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -573,7 +578,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// Mark as success and close form.
+        /// Marks as success and closes form.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -586,7 +591,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// Mark success as false and close form.
+        /// Marks success as false and closes form.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

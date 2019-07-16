@@ -43,7 +43,7 @@ namespace AVM.Parsers
 
         #region Properties
         /// <summary>
-        /// This is the title for the Hulu video.
+        /// The title for the Hulu video.
         /// </summary>
         public string Title
         {
@@ -51,7 +51,7 @@ namespace AVM.Parsers
         }
 
         /// <summary>
-        /// This is the episode title for the Hulu video.
+        /// The episode title for the Hulu video.
         /// </summary>
         public string EpisodeTitle
         {
@@ -65,7 +65,7 @@ namespace AVM.Parsers
         }
 
         /// <summary>
-        /// This is the episode number for the Hulu video.
+        /// The episode number for the Hulu video.
         /// </summary>
         public int EpisodeNumber
         {
@@ -73,7 +73,7 @@ namespace AVM.Parsers
         }
 
         /// <summary>
-        /// This is the season number for the Hulu video.
+        /// The season number for the Hulu video.
         /// </summary>
         public int SeasonNumber
         {
@@ -81,7 +81,7 @@ namespace AVM.Parsers
         }
 
         /// <summary>
-        /// This is the embedded string for the Hulu video.
+        /// The embedded string for the Hulu video.
         /// </summary>
         public string Embedded
         {
@@ -89,7 +89,7 @@ namespace AVM.Parsers
         }
 
         /// <summary>
-        /// This is the url to the Hulu video.
+        /// The url to the Hulu video.
         /// </summary>
         public string Url
         {
@@ -99,7 +99,7 @@ namespace AVM.Parsers
 
         #region Constructor
         /// <summary>
-        /// This creates a HuluParser with the url that is to be parsed.
+        /// Creates a HuluParser with the url that is to be parsed.
         /// </summary>
         /// <param name="input">Url that is to be parse.</param>
         public HuluParser(string input)

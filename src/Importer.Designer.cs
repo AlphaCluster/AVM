@@ -28,12 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.backupBrowseButton = new System.Windows.Forms.Button();
-            this.backupCancelButton = new System.Windows.Forms.Button();
-            this.backupFileTextBox = new System.Windows.Forms.TextBox();
-            this.backupFileLabel = new System.Windows.Forms.Label();
+            this.restoreBrowseButton = new System.Windows.Forms.Button();
+            this.restoreCancelButton = new System.Windows.Forms.Button();
+            this.restoreFileTextBox = new System.Windows.Forms.TextBox();
+            this.restoreFileLabel = new System.Windows.Forms.Label();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.backupOpenFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.restoreOpenFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.folderTabPage = new System.Windows.Forms.TabPage();
             this.folderPatternTextBox = new System.Windows.Forms.TextBox();
@@ -47,64 +47,63 @@
             this.groupComboBox = new System.Windows.Forms.ComboBox();
             this.groupForwardButton = new System.Windows.Forms.Button();
             this.groupBackButton = new System.Windows.Forms.Button();
-            this.backupTabPage = new System.Windows.Forms.TabPage();
-            this.backupAddButton = new System.Windows.Forms.Button();
+            this.restoreTabPage = new System.Windows.Forms.TabPage();
+            this.restoreAddButton = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.folderTabPage.SuspendLayout();
-            this.backupTabPage.SuspendLayout();
+            this.restoreTabPage.SuspendLayout();
             this.SuspendLayout();
             // 
-            // backupBrowseButton
+            // restoreBrowseButton
             // 
-            this.backupBrowseButton.Location = new System.Drawing.Point(313, 38);
-            this.backupBrowseButton.Margin = new System.Windows.Forms.Padding(4);
-            this.backupBrowseButton.Name = "backupBrowseButton";
-            this.backupBrowseButton.Size = new System.Drawing.Size(100, 26);
-            this.backupBrowseButton.TabIndex = 10;
-            this.backupBrowseButton.Text = "Browse";
-            this.backupBrowseButton.UseVisualStyleBackColor = true;
-            this.backupBrowseButton.Click += new System.EventHandler(this.backupBrowseButton_Click);
+            this.restoreBrowseButton.Location = new System.Drawing.Point(313, 38);
+            this.restoreBrowseButton.Margin = new System.Windows.Forms.Padding(4);
+            this.restoreBrowseButton.Name = "restoreBrowseButton";
+            this.restoreBrowseButton.Size = new System.Drawing.Size(100, 26);
+            this.restoreBrowseButton.TabIndex = 10;
+            this.restoreBrowseButton.Text = "Browse";
+            this.restoreBrowseButton.UseVisualStyleBackColor = true;
+            this.restoreBrowseButton.Click += new System.EventHandler(this.restoreBrowseButton_Click);
             // 
-            // backupCancelButton
+            // restoreCancelButton
             // 
-            this.backupCancelButton.Location = new System.Drawing.Point(313, 99);
-            this.backupCancelButton.Margin = new System.Windows.Forms.Padding(4);
-            this.backupCancelButton.Name = "backupCancelButton";
-            this.backupCancelButton.Size = new System.Drawing.Size(100, 26);
-            this.backupCancelButton.TabIndex = 9;
-            this.backupCancelButton.Text = "Cancel";
-            this.backupCancelButton.UseVisualStyleBackColor = true;
-            this.backupCancelButton.Click += new System.EventHandler(this.backupCancelButton_Click);
+            this.restoreCancelButton.Location = new System.Drawing.Point(313, 99);
+            this.restoreCancelButton.Margin = new System.Windows.Forms.Padding(4);
+            this.restoreCancelButton.Name = "restoreCancelButton";
+            this.restoreCancelButton.Size = new System.Drawing.Size(100, 26);
+            this.restoreCancelButton.TabIndex = 9;
+            this.restoreCancelButton.Text = "Cancel";
+            this.restoreCancelButton.UseVisualStyleBackColor = true;
+            this.restoreCancelButton.Click += new System.EventHandler(this.restoreCancelButton_Click);
             // 
-            // backupFileTextBox
+            // restoreFileTextBox
             // 
-            this.backupFileTextBox.Location = new System.Drawing.Point(47, 40);
-            this.backupFileTextBox.Margin = new System.Windows.Forms.Padding(4);
-            this.backupFileTextBox.Name = "backupFileTextBox";
-            this.backupFileTextBox.Size = new System.Drawing.Size(258, 22);
-            this.backupFileTextBox.TabIndex = 5;
-            this.backupFileTextBox.TextChanged += new System.EventHandler(this.topTextBox_TextChanged);
+            this.restoreFileTextBox.Location = new System.Drawing.Point(47, 40);
+            this.restoreFileTextBox.Margin = new System.Windows.Forms.Padding(4);
+            this.restoreFileTextBox.Name = "restoreFileTextBox";
+            this.restoreFileTextBox.Size = new System.Drawing.Size(258, 22);
+            this.restoreFileTextBox.TabIndex = 5;
+            this.restoreFileTextBox.TextChanged += new System.EventHandler(this.topTextBox_TextChanged);
             // 
-            // backupFileLabel
+            // restoreFileLabel
             // 
-            this.backupFileLabel.AutoSize = true;
-            this.backupFileLabel.Location = new System.Drawing.Point(9, 43);
-            this.backupFileLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.backupFileLabel.Name = "backupFileLabel";
-            this.backupFileLabel.Size = new System.Drawing.Size(30, 16);
-            this.backupFileLabel.TabIndex = 4;
-            this.backupFileLabel.Text = "File";
+            this.restoreFileLabel.AutoSize = true;
+            this.restoreFileLabel.Location = new System.Drawing.Point(9, 43);
+            this.restoreFileLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.restoreFileLabel.Name = "restoreFileLabel";
+            this.restoreFileLabel.Size = new System.Drawing.Size(30, 16);
+            this.restoreFileLabel.TabIndex = 4;
+            this.restoreFileLabel.Text = "File";
             // 
-            // backupOpenFileDialog
+            // restoreOpenFileDialog
             // 
-            this.backupOpenFileDialog.DefaultExt = "xml";
-            this.backupOpenFileDialog.FileName = "openFileDialog1";
-            this.backupOpenFileDialog.Filter = "xml files|*.xml|All files|*.*";
+            this.restoreOpenFileDialog.DefaultExt = "xml";
+            this.restoreOpenFileDialog.Filter = "xml files|*.xml|All files|*.*";
             // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.folderTabPage);
-            this.tabControl1.Controls.Add(this.backupTabPage);
+            this.tabControl1.Controls.Add(this.restoreTabPage);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
@@ -224,6 +223,7 @@
             this.groupComboBox.Margin = new System.Windows.Forms.Padding(4);
             this.groupComboBox.Name = "groupComboBox";
             this.groupComboBox.Size = new System.Drawing.Size(159, 24);
+            this.groupComboBox.Sorted = true;
             this.groupComboBox.TabIndex = 4;
             // 
             // groupForwardButton
@@ -248,33 +248,33 @@
             this.groupBackButton.UseVisualStyleBackColor = true;
             this.groupBackButton.Click += new System.EventHandler(this.groupBackButton_Click);
             // 
-            // backupTabPage
+            // restoreTabPage
             // 
-            this.backupTabPage.Controls.Add(this.backupAddButton);
-            this.backupTabPage.Controls.Add(this.backupFileTextBox);
-            this.backupTabPage.Controls.Add(this.backupBrowseButton);
-            this.backupTabPage.Controls.Add(this.backupFileLabel);
-            this.backupTabPage.Controls.Add(this.backupCancelButton);
-            this.backupTabPage.Location = new System.Drawing.Point(4, 25);
-            this.backupTabPage.Margin = new System.Windows.Forms.Padding(4);
-            this.backupTabPage.Name = "backupTabPage";
-            this.backupTabPage.Padding = new System.Windows.Forms.Padding(4);
-            this.backupTabPage.Size = new System.Drawing.Size(417, 134);
-            this.backupTabPage.TabIndex = 1;
-            this.backupTabPage.Text = "Backup";
-            this.backupTabPage.UseVisualStyleBackColor = true;
+            this.restoreTabPage.Controls.Add(this.restoreAddButton);
+            this.restoreTabPage.Controls.Add(this.restoreFileTextBox);
+            this.restoreTabPage.Controls.Add(this.restoreBrowseButton);
+            this.restoreTabPage.Controls.Add(this.restoreFileLabel);
+            this.restoreTabPage.Controls.Add(this.restoreCancelButton);
+            this.restoreTabPage.Location = new System.Drawing.Point(4, 25);
+            this.restoreTabPage.Margin = new System.Windows.Forms.Padding(4);
+            this.restoreTabPage.Name = "restoreTabPage";
+            this.restoreTabPage.Padding = new System.Windows.Forms.Padding(4);
+            this.restoreTabPage.Size = new System.Drawing.Size(417, 134);
+            this.restoreTabPage.TabIndex = 1;
+            this.restoreTabPage.Text = "Restore";
+            this.restoreTabPage.UseVisualStyleBackColor = true;
             // 
-            // backupAddButton
+            // restoreAddButton
             // 
-            this.backupAddButton.Enabled = false;
-            this.backupAddButton.Location = new System.Drawing.Point(205, 99);
-            this.backupAddButton.Margin = new System.Windows.Forms.Padding(4);
-            this.backupAddButton.Name = "backupAddButton";
-            this.backupAddButton.Size = new System.Drawing.Size(100, 26);
-            this.backupAddButton.TabIndex = 11;
-            this.backupAddButton.Text = "Add";
-            this.backupAddButton.UseVisualStyleBackColor = true;
-            this.backupAddButton.Click += new System.EventHandler(this.backupAddButton_Click);
+            this.restoreAddButton.Enabled = false;
+            this.restoreAddButton.Location = new System.Drawing.Point(205, 99);
+            this.restoreAddButton.Margin = new System.Windows.Forms.Padding(4);
+            this.restoreAddButton.Name = "restoreAddButton";
+            this.restoreAddButton.Size = new System.Drawing.Size(100, 26);
+            this.restoreAddButton.TabIndex = 11;
+            this.restoreAddButton.Text = "Restore";
+            this.restoreAddButton.UseVisualStyleBackColor = true;
+            this.restoreAddButton.Click += new System.EventHandler(this.restoreAddButton_Click);
             // 
             // Importer
             // 
@@ -290,8 +290,8 @@
             this.tabControl1.ResumeLayout(false);
             this.folderTabPage.ResumeLayout(false);
             this.folderTabPage.PerformLayout();
-            this.backupTabPage.ResumeLayout(false);
-            this.backupTabPage.PerformLayout();
+            this.restoreTabPage.ResumeLayout(false);
+            this.restoreTabPage.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -299,24 +299,24 @@
         #endregion
 
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
-        private System.Windows.Forms.TextBox backupFileTextBox;
-        private System.Windows.Forms.Label backupFileLabel;
-        private System.Windows.Forms.Button backupCancelButton;
-        private System.Windows.Forms.Button backupBrowseButton;
-        private System.Windows.Forms.OpenFileDialog backupOpenFileDialog;
+        private System.Windows.Forms.TextBox restoreFileTextBox;
+        private System.Windows.Forms.Label restoreFileLabel;
+        private System.Windows.Forms.Button restoreCancelButton;
+        private System.Windows.Forms.Button restoreBrowseButton;
+        private System.Windows.Forms.OpenFileDialog restoreOpenFileDialog;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage folderTabPage;
         private System.Windows.Forms.Label groupLabel;
         private System.Windows.Forms.ComboBox groupComboBox;
         private System.Windows.Forms.Button groupForwardButton;
         private System.Windows.Forms.Button groupBackButton;
-        private System.Windows.Forms.TabPage backupTabPage;
+        private System.Windows.Forms.TabPage restoreTabPage;
         private System.Windows.Forms.TextBox folderFileTextBox;
         private System.Windows.Forms.Button folderBrowseButton;
         private System.Windows.Forms.Label folderFileLabel;
         private System.Windows.Forms.Button folderCancelButton;
         private System.Windows.Forms.Button folderAddButton;
-        private System.Windows.Forms.Button backupAddButton;
+        private System.Windows.Forms.Button restoreAddButton;
         private System.Windows.Forms.TextBox folderPatternTextBox;
         private System.Windows.Forms.Label patternLabel;
     }

@@ -112,7 +112,7 @@
             this.nodeTabControl.Name = "nodeTabControl";
             this.nodeTabControl.SelectedIndex = 0;
             this.nodeTabControl.Size = new System.Drawing.Size(387, 308);
-            this.nodeTabControl.TabIndex = 0;
+            this.nodeTabControl.TabIndex = 20;
             // 
             // fileTabPage
             // 
@@ -149,7 +149,7 @@
             this.fileAddButton.Location = new System.Drawing.Point(294, 220);
             this.fileAddButton.Name = "fileAddButton";
             this.fileAddButton.Size = new System.Drawing.Size(75, 23);
-            this.fileAddButton.TabIndex = 20;
+            this.fileAddButton.TabIndex = 10;
             this.fileAddButton.Text = "Add";
             this.fileAddButton.UseVisualStyleBackColor = true;
             this.fileAddButton.Click += new System.EventHandler(this.addButton_Click);
@@ -159,7 +159,7 @@
             this.fileCancelButton.Location = new System.Drawing.Point(294, 247);
             this.fileCancelButton.Name = "fileCancelButton";
             this.fileCancelButton.Size = new System.Drawing.Size(75, 23);
-            this.fileCancelButton.TabIndex = 19;
+            this.fileCancelButton.TabIndex = 11;
             this.fileCancelButton.Text = "Cancel";
             this.fileCancelButton.UseVisualStyleBackColor = true;
             this.fileCancelButton.Click += new System.EventHandler(this.cancelButton_Click);
@@ -171,7 +171,7 @@
             this.fileLastWatchedCheckBox.Location = new System.Drawing.Point(7, 160);
             this.fileLastWatchedCheckBox.Name = "fileLastWatchedCheckBox";
             this.fileLastWatchedCheckBox.Size = new System.Drawing.Size(109, 20);
-            this.fileLastWatchedCheckBox.TabIndex = 18;
+            this.fileLastWatchedCheckBox.TabIndex = 6;
             this.fileLastWatchedCheckBox.Text = "Last Watched";
             this.fileLastWatchedCheckBox.UseVisualStyleBackColor = true;
             this.fileLastWatchedCheckBox.CheckedChanged += new System.EventHandler(this.lastWatched_CheckedChanged);
@@ -182,7 +182,7 @@
             this.fileSeasonNumberTextBox.Location = new System.Drawing.Point(124, 132);
             this.fileSeasonNumberTextBox.Name = "fileSeasonNumberTextBox";
             this.fileSeasonNumberTextBox.Size = new System.Drawing.Size(112, 22);
-            this.fileSeasonNumberTextBox.TabIndex = 17;
+            this.fileSeasonNumberTextBox.TabIndex = 5;
             this.fileSeasonNumberTextBox.Tag = "season";
             this.fileSeasonNumberTextBox.TextChanged += new System.EventHandler(this.episodeOrSeasonNumber_TextChanged);
             // 
@@ -192,7 +192,7 @@
             this.fileEpisodeNumberTextBox.Location = new System.Drawing.Point(124, 104);
             this.fileEpisodeNumberTextBox.Name = "fileEpisodeNumberTextBox";
             this.fileEpisodeNumberTextBox.Size = new System.Drawing.Size(112, 22);
-            this.fileEpisodeNumberTextBox.TabIndex = 16;
+            this.fileEpisodeNumberTextBox.TabIndex = 4;
             this.fileEpisodeNumberTextBox.Tag = "episode";
             this.fileEpisodeNumberTextBox.TextChanged += new System.EventHandler(this.episodeOrSeasonNumber_TextChanged);
             // 
@@ -222,7 +222,7 @@
             this.fileEpisodeNameTextBox.Location = new System.Drawing.Point(114, 76);
             this.fileEpisodeNameTextBox.Name = "fileEpisodeNameTextBox";
             this.fileEpisodeNameTextBox.Size = new System.Drawing.Size(174, 22);
-            this.fileEpisodeNameTextBox.TabIndex = 12;
+            this.fileEpisodeNameTextBox.TabIndex = 3;
             this.fileEpisodeNameTextBox.TextChanged += new System.EventHandler(this.episodeName_TextChanged);
             // 
             // fileEpisodeNameLabel
@@ -241,7 +241,7 @@
             this.fileNameTextBox.Location = new System.Drawing.Point(59, 48);
             this.fileNameTextBox.Name = "fileNameTextBox";
             this.fileNameTextBox.Size = new System.Drawing.Size(229, 22);
-            this.fileNameTextBox.TabIndex = 10;
+            this.fileNameTextBox.TabIndex = 2;
             this.fileNameTextBox.TextChanged += new System.EventHandler(this.name_TextChanged);
             // 
             // fileAudioCodecLabel
@@ -271,7 +271,7 @@
             this.fileContainerComboBox.Location = new System.Drawing.Point(115, 245);
             this.fileContainerComboBox.Name = "fileContainerComboBox";
             this.fileContainerComboBox.Size = new System.Drawing.Size(121, 24);
-            this.fileContainerComboBox.TabIndex = 7;
+            this.fileContainerComboBox.TabIndex = 9;
             this.fileContainerComboBox.SelectedIndexChanged += new System.EventHandler(this.fileContainerComboBox_SelectedIndexChanged);
             // 
             // fileAudioCodecComboBox
@@ -281,7 +281,7 @@
             this.fileAudioCodecComboBox.Location = new System.Drawing.Point(115, 215);
             this.fileAudioCodecComboBox.Name = "fileAudioCodecComboBox";
             this.fileAudioCodecComboBox.Size = new System.Drawing.Size(121, 24);
-            this.fileAudioCodecComboBox.TabIndex = 6;
+            this.fileAudioCodecComboBox.TabIndex = 8;
             this.fileAudioCodecComboBox.SelectedIndexChanged += new System.EventHandler(this.fileAudioCodecComboBox_SelectedIndexChanged);
             // 
             // fileVideoCodecComboBox
@@ -291,7 +291,7 @@
             this.fileVideoCodecComboBox.Location = new System.Drawing.Point(114, 185);
             this.fileVideoCodecComboBox.Name = "fileVideoCodecComboBox";
             this.fileVideoCodecComboBox.Size = new System.Drawing.Size(121, 24);
-            this.fileVideoCodecComboBox.TabIndex = 5;
+            this.fileVideoCodecComboBox.TabIndex = 7;
             this.fileVideoCodecComboBox.SelectedIndexChanged += new System.EventHandler(this.fileVideoCodecComboBox_SelectedIndexChanged);
             // 
             // fileNameLabel
@@ -320,7 +320,7 @@
             this.fileBrowseButton.Location = new System.Drawing.Point(294, 20);
             this.fileBrowseButton.Name = "fileBrowseButton";
             this.fileBrowseButton.Size = new System.Drawing.Size(75, 23);
-            this.fileBrowseButton.TabIndex = 2;
+            this.fileBrowseButton.TabIndex = 1;
             this.fileBrowseButton.Text = "Browse";
             this.fileBrowseButton.UseVisualStyleBackColor = true;
             this.fileBrowseButton.Click += new System.EventHandler(this.fileBrowseButton_Click);
@@ -376,7 +376,7 @@
             this.youTubeLastWatchedCheckBox.Location = new System.Drawing.Point(7, 160);
             this.youTubeLastWatchedCheckBox.Name = "youTubeLastWatchedCheckBox";
             this.youTubeLastWatchedCheckBox.Size = new System.Drawing.Size(109, 20);
-            this.youTubeLastWatchedCheckBox.TabIndex = 30;
+            this.youTubeLastWatchedCheckBox.TabIndex = 6;
             this.youTubeLastWatchedCheckBox.Text = "Last Watched";
             this.youTubeLastWatchedCheckBox.UseVisualStyleBackColor = true;
             this.youTubeLastWatchedCheckBox.CheckedChanged += new System.EventHandler(this.lastWatched_CheckedChanged);
@@ -387,7 +387,7 @@
             this.youTubeSeasonNumberTextBox.Location = new System.Drawing.Point(124, 132);
             this.youTubeSeasonNumberTextBox.Name = "youTubeSeasonNumberTextBox";
             this.youTubeSeasonNumberTextBox.Size = new System.Drawing.Size(112, 22);
-            this.youTubeSeasonNumberTextBox.TabIndex = 29;
+            this.youTubeSeasonNumberTextBox.TabIndex = 5;
             this.youTubeSeasonNumberTextBox.Tag = "season";
             this.youTubeSeasonNumberTextBox.TextChanged += new System.EventHandler(this.episodeOrSeasonNumber_TextChanged);
             // 
@@ -397,7 +397,7 @@
             this.youTubeEpisodeNumberTextBox.Location = new System.Drawing.Point(124, 104);
             this.youTubeEpisodeNumberTextBox.Name = "youTubeEpisodeNumberTextBox";
             this.youTubeEpisodeNumberTextBox.Size = new System.Drawing.Size(112, 22);
-            this.youTubeEpisodeNumberTextBox.TabIndex = 28;
+            this.youTubeEpisodeNumberTextBox.TabIndex = 4;
             this.youTubeEpisodeNumberTextBox.Tag = "episode";
             this.youTubeEpisodeNumberTextBox.TextChanged += new System.EventHandler(this.episodeOrSeasonNumber_TextChanged);
             // 
@@ -427,7 +427,7 @@
             this.youTubeEpisodeNameTextBox.Location = new System.Drawing.Point(114, 76);
             this.youTubeEpisodeNameTextBox.Name = "youTubeEpisodeNameTextBox";
             this.youTubeEpisodeNameTextBox.Size = new System.Drawing.Size(174, 22);
-            this.youTubeEpisodeNameTextBox.TabIndex = 25;
+            this.youTubeEpisodeNameTextBox.TabIndex = 3;
             this.youTubeEpisodeNameTextBox.TextChanged += new System.EventHandler(this.episodeName_TextChanged);
             // 
             // youTubeEpisodeNameLabel
@@ -445,7 +445,7 @@
             this.youTubePlayButton.Location = new System.Drawing.Point(130, 220);
             this.youTubePlayButton.Name = "youTubePlayButton";
             this.youTubePlayButton.Size = new System.Drawing.Size(158, 50);
-            this.youTubePlayButton.TabIndex = 23;
+            this.youTubePlayButton.TabIndex = 7;
             this.youTubePlayButton.Text = "Play";
             this.youTubePlayButton.UseVisualStyleBackColor = true;
             this.youTubePlayButton.Click += new System.EventHandler(this.playButton_Click);
@@ -455,7 +455,7 @@
             this.youTubeAddButton.Location = new System.Drawing.Point(294, 220);
             this.youTubeAddButton.Name = "youTubeAddButton";
             this.youTubeAddButton.Size = new System.Drawing.Size(75, 23);
-            this.youTubeAddButton.TabIndex = 22;
+            this.youTubeAddButton.TabIndex = 8;
             this.youTubeAddButton.Text = "Add";
             this.youTubeAddButton.UseVisualStyleBackColor = true;
             this.youTubeAddButton.Click += new System.EventHandler(this.addButton_Click);
@@ -465,7 +465,7 @@
             this.youTubeCancelButton.Location = new System.Drawing.Point(294, 247);
             this.youTubeCancelButton.Name = "youTubeCancelButton";
             this.youTubeCancelButton.Size = new System.Drawing.Size(75, 23);
-            this.youTubeCancelButton.TabIndex = 21;
+            this.youTubeCancelButton.TabIndex = 9;
             this.youTubeCancelButton.Text = "Cancel";
             this.youTubeCancelButton.UseVisualStyleBackColor = true;
             this.youTubeCancelButton.Click += new System.EventHandler(this.cancelButton_Click);
@@ -485,7 +485,7 @@
             this.youTubeNameTextBox.Location = new System.Drawing.Point(59, 48);
             this.youTubeNameTextBox.Name = "youTubeNameTextBox";
             this.youTubeNameTextBox.Size = new System.Drawing.Size(229, 22);
-            this.youTubeNameTextBox.TabIndex = 12;
+            this.youTubeNameTextBox.TabIndex = 2;
             this.youTubeNameTextBox.TextChanged += new System.EventHandler(this.name_TextChanged);
             // 
             // youTubeNameLabel
@@ -504,7 +504,7 @@
             this.youTubeLinkButton.Location = new System.Drawing.Point(294, 20);
             this.youTubeLinkButton.Name = "youTubeLinkButton";
             this.youTubeLinkButton.Size = new System.Drawing.Size(75, 23);
-            this.youTubeLinkButton.TabIndex = 5;
+            this.youTubeLinkButton.TabIndex = 1;
             this.youTubeLinkButton.Text = "Test";
             this.youTubeLinkButton.UseVisualStyleBackColor = true;
             this.youTubeLinkButton.Click += new System.EventHandler(this.youTubeLinkButton_Click);
@@ -525,7 +525,7 @@
             this.youTubeLinkTextBox.Location = new System.Drawing.Point(44, 20);
             this.youTubeLinkTextBox.Name = "youTubeLinkTextBox";
             this.youTubeLinkTextBox.Size = new System.Drawing.Size(244, 22);
-            this.youTubeLinkTextBox.TabIndex = 3;
+            this.youTubeLinkTextBox.TabIndex = 0;
             this.youTubeLinkTextBox.TextChanged += new System.EventHandler(this.youTubeLinkTextBox_TextChanged);
             // 
             // huluTabPage
@@ -569,7 +569,7 @@
             this.huluPlayButton.Location = new System.Drawing.Point(130, 220);
             this.huluPlayButton.Name = "huluPlayButton";
             this.huluPlayButton.Size = new System.Drawing.Size(158, 50);
-            this.huluPlayButton.TabIndex = 44;
+            this.huluPlayButton.TabIndex = 7;
             this.huluPlayButton.Text = "Play";
             this.huluPlayButton.UseVisualStyleBackColor = true;
             this.huluPlayButton.Click += new System.EventHandler(this.playButton_Click);
@@ -581,7 +581,7 @@
             this.huluLastWatchedCheckBox.Location = new System.Drawing.Point(7, 160);
             this.huluLastWatchedCheckBox.Name = "huluLastWatchedCheckBox";
             this.huluLastWatchedCheckBox.Size = new System.Drawing.Size(109, 20);
-            this.huluLastWatchedCheckBox.TabIndex = 43;
+            this.huluLastWatchedCheckBox.TabIndex = 6;
             this.huluLastWatchedCheckBox.Text = "Last Watched";
             this.huluLastWatchedCheckBox.UseVisualStyleBackColor = true;
             this.huluLastWatchedCheckBox.CheckedChanged += new System.EventHandler(this.lastWatched_CheckedChanged);
@@ -592,7 +592,7 @@
             this.huluSeasonNumberTextBox.Location = new System.Drawing.Point(124, 132);
             this.huluSeasonNumberTextBox.Name = "huluSeasonNumberTextBox";
             this.huluSeasonNumberTextBox.Size = new System.Drawing.Size(112, 22);
-            this.huluSeasonNumberTextBox.TabIndex = 42;
+            this.huluSeasonNumberTextBox.TabIndex = 5;
             this.huluSeasonNumberTextBox.Tag = "season";
             this.huluSeasonNumberTextBox.TextChanged += new System.EventHandler(this.episodeOrSeasonNumber_TextChanged);
             // 
@@ -602,7 +602,7 @@
             this.huluEpisodeNumberTextBox.Location = new System.Drawing.Point(124, 104);
             this.huluEpisodeNumberTextBox.Name = "huluEpisodeNumberTextBox";
             this.huluEpisodeNumberTextBox.Size = new System.Drawing.Size(112, 22);
-            this.huluEpisodeNumberTextBox.TabIndex = 41;
+            this.huluEpisodeNumberTextBox.TabIndex = 4;
             this.huluEpisodeNumberTextBox.Tag = "episode";
             this.huluEpisodeNumberTextBox.TextChanged += new System.EventHandler(this.episodeOrSeasonNumber_TextChanged);
             // 
@@ -632,7 +632,7 @@
             this.huluEpisodeNameTextBox.Location = new System.Drawing.Point(114, 76);
             this.huluEpisodeNameTextBox.Name = "huluEpisodeNameTextBox";
             this.huluEpisodeNameTextBox.Size = new System.Drawing.Size(174, 22);
-            this.huluEpisodeNameTextBox.TabIndex = 38;
+            this.huluEpisodeNameTextBox.TabIndex = 3;
             this.huluEpisodeNameTextBox.TextChanged += new System.EventHandler(this.episodeName_TextChanged);
             // 
             // huluEpisodeNameLabel
@@ -660,7 +660,7 @@
             this.huluNameTextBox.Location = new System.Drawing.Point(59, 48);
             this.huluNameTextBox.Name = "huluNameTextBox";
             this.huluNameTextBox.Size = new System.Drawing.Size(229, 22);
-            this.huluNameTextBox.TabIndex = 35;
+            this.huluNameTextBox.TabIndex = 2;
             this.huluNameTextBox.TextChanged += new System.EventHandler(this.name_TextChanged);
             // 
             // huluNameLabel
@@ -679,7 +679,7 @@
             this.huluLinkButton.Location = new System.Drawing.Point(294, 20);
             this.huluLinkButton.Name = "huluLinkButton";
             this.huluLinkButton.Size = new System.Drawing.Size(75, 23);
-            this.huluLinkButton.TabIndex = 33;
+            this.huluLinkButton.TabIndex = 1;
             this.huluLinkButton.Text = "Test";
             this.huluLinkButton.UseVisualStyleBackColor = true;
             this.huluLinkButton.Click += new System.EventHandler(this.huluLinkButton_Click);
@@ -700,7 +700,7 @@
             this.huluLinkTextBox.Location = new System.Drawing.Point(44, 20);
             this.huluLinkTextBox.Name = "huluLinkTextBox";
             this.huluLinkTextBox.Size = new System.Drawing.Size(244, 22);
-            this.huluLinkTextBox.TabIndex = 31;
+            this.huluLinkTextBox.TabIndex = 0;
             this.huluLinkTextBox.TextChanged += new System.EventHandler(this.huluLinkTextBox_TextChanged);
             // 
             // huluAddButton
@@ -708,7 +708,7 @@
             this.huluAddButton.Location = new System.Drawing.Point(294, 220);
             this.huluAddButton.Name = "huluAddButton";
             this.huluAddButton.Size = new System.Drawing.Size(75, 23);
-            this.huluAddButton.TabIndex = 24;
+            this.huluAddButton.TabIndex = 8;
             this.huluAddButton.Text = "Add";
             this.huluAddButton.UseVisualStyleBackColor = true;
             this.huluAddButton.Click += new System.EventHandler(this.addButton_Click);
@@ -718,7 +718,7 @@
             this.huluCancelButton.Location = new System.Drawing.Point(294, 247);
             this.huluCancelButton.Name = "huluCancelButton";
             this.huluCancelButton.Size = new System.Drawing.Size(75, 23);
-            this.huluCancelButton.TabIndex = 23;
+            this.huluCancelButton.TabIndex = 9;
             this.huluCancelButton.Text = "Cancel";
             this.huluCancelButton.UseVisualStyleBackColor = true;
             this.huluCancelButton.Click += new System.EventHandler(this.cancelButton_Click);
@@ -745,7 +745,7 @@
             this.dvdCommentsTextBox.Multiline = true;
             this.dvdCommentsTextBox.Name = "dvdCommentsTextBox";
             this.dvdCommentsTextBox.Size = new System.Drawing.Size(358, 144);
-            this.dvdCommentsTextBox.TabIndex = 39;
+            this.dvdCommentsTextBox.TabIndex = 1;
             this.dvdCommentsTextBox.TextChanged += new System.EventHandler(this.dvdCommentsTextBox_TextChanged);
             // 
             // dvdCommentsLabel
@@ -764,7 +764,7 @@
             this.dvdNameTextBox.Location = new System.Drawing.Point(59, 20);
             this.dvdNameTextBox.Name = "dvdNameTextBox";
             this.dvdNameTextBox.Size = new System.Drawing.Size(229, 22);
-            this.dvdNameTextBox.TabIndex = 34;
+            this.dvdNameTextBox.TabIndex = 0;
             this.dvdNameTextBox.TextChanged += new System.EventHandler(this.name_TextChanged);
             // 
             // dvdNameLabel
@@ -782,7 +782,7 @@
             this.dvdAddButton.Location = new System.Drawing.Point(294, 220);
             this.dvdAddButton.Name = "dvdAddButton";
             this.dvdAddButton.Size = new System.Drawing.Size(75, 23);
-            this.dvdAddButton.TabIndex = 26;
+            this.dvdAddButton.TabIndex = 2;
             this.dvdAddButton.Text = "Add";
             this.dvdAddButton.UseVisualStyleBackColor = true;
             this.dvdAddButton.Click += new System.EventHandler(this.addButton_Click);
@@ -792,7 +792,7 @@
             this.dvdCancelButton.Location = new System.Drawing.Point(294, 247);
             this.dvdCancelButton.Name = "dvdCancelButton";
             this.dvdCancelButton.Size = new System.Drawing.Size(75, 23);
-            this.dvdCancelButton.TabIndex = 25;
+            this.dvdCancelButton.TabIndex = 3;
             this.dvdCancelButton.Text = "Cancel";
             this.dvdCancelButton.UseVisualStyleBackColor = true;
             this.dvdCancelButton.Click += new System.EventHandler(this.cancelButton_Click);

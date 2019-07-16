@@ -50,8 +50,8 @@ namespace AVM.Types
 
         #region Properties
         /// <summary>
-        /// This is the node_id for the node.
-        /// This is used as an identifier for database lookups.
+        /// The node_id for the node.
+        /// Used as an identifier for database lookups.
         /// </summary>
         public long Id
         {
@@ -60,7 +60,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This is the nodes name that is seen by the user.
+        /// The nodes name that is seen by the user.
         /// </summary>
         public string Name
         {
@@ -143,7 +143,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This is used to set a YouTube video by sending the embedded link.
+        /// Used to set a YouTube video by sending the embedded link.
         /// If an embedded link is sent then it creates the right html code for
         /// an embedded player and if it is null it doesn't.
         /// </summary>
@@ -167,7 +167,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This is used to set a Hulu video by sending the embedded link.
+        /// Used to set a Hulu video by sending the embedded link.
         /// If an embedded link is sent then it creates the right html code for
         /// an embedded player (currently not working) and if it is null it doesn't.
         /// </summary>
@@ -271,7 +271,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This is the group_id of the parent group for the node.
+        /// The group_id of the parent group for the node.
         /// </summary>
         public long ParentId
         {
@@ -282,7 +282,7 @@ namespace AVM.Types
 
         #region Constructors
         /// <summary>
-        /// This creates a basic node with no information and a blank name.
+        /// Creates a basic node with no information and a blank name.
         /// </summary>
         public Node()
         {
@@ -293,7 +293,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This creates a node based on a given path to a file.
+        /// Creates a node based on a given path to a file.
         /// </summary>
         /// <param name="path">Path to the file the node is for.</param>
         public Node(string path)
@@ -319,7 +319,7 @@ namespace AVM.Types
 
         #region Methods
         /// <summary>
-        /// This is used to play Hulu and YouTube videos.
+        /// Used to play Hulu and YouTube videos.
         /// </summary>
         public void Play()
         {

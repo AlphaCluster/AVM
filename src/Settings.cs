@@ -70,46 +70,67 @@ namespace AVM
         private void applyButton_Click(object sender,
                                        EventArgs e)
         {
+            int columnCount = 0;
+
             // Save the Column Properties
             Properties.Settings.Default.NameColumnEnabled =
                     nameColumnCheckBox.Checked;
             Properties.Settings.Default.NameColumnLabel =
                     nameColumnLabelTextBox.Text;
+            if (nameColumnCheckBox.Checked)
+                columnCount++;
 
             Properties.Settings.Default.EpisodeNameColumnEnabled =
                     episodeNameColumnCheckBox.Checked;
             Properties.Settings.Default.EpisodeNameColumnLabel =
                     episodeNameColumnLabelTextBox.Text;
+            if (episodeNameColumnCheckBox.Checked)
+                columnCount++;
 
             Properties.Settings.Default.SeasonNumberColumnEnabled =
                     seasonNumberColumnCheckBox.Checked;
             Properties.Settings.Default.SeasonNumberColumnLabel =
                     seasonNumberColumnLabelTextBox.Text;
+            if (seasonNumberColumnCheckBox.Checked)
+                columnCount++;
 
             Properties.Settings.Default.EpisodeNumberColumnEnabled =
                     episodeNumberColumnCheckBox.Checked;
             Properties.Settings.Default.EpisodeNumberColumnLabel =
                     episodeNumberColumnLabelTextBox.Text;
+            if (episodeNumberColumnCheckBox.Checked)
+                columnCount++;
 
             Properties.Settings.Default.VideoCodecColumnEnabled =
                     videoCodecColumnCheckBox.Checked;
             Properties.Settings.Default.VideoCodecColumnLabel =
                     videoCodecColumnLabelTextBox.Text;
+            if (videoCodecColumnCheckBox.Checked)
+                columnCount++;
 
             Properties.Settings.Default.AudioCodecColumnEnabled =
                     audioCodecColumnCheckBox.Checked;
             Properties.Settings.Default.AudioCodecColumnLabel =
                     audioCodecColumnLabelTextBox.Text;
+            if (audioCodecColumnCheckBox.Checked)
+                columnCount++;
 
             Properties.Settings.Default.ContainerColumnEnabled =
                     containerColumnCheckBox.Checked;
             Properties.Settings.Default.ContainerColumnLabel =
                     containerColumnLabelTextBox.Text;
+            if (containerColumnCheckBox.Checked)
+                columnCount++;
 
             Properties.Settings.Default.TimesPlayedColumnEnabled =
                     timesPlayedColumnCheckBox.Checked;
             Properties.Settings.Default.TimesPlayedColumnLabel =
                     timesPlayedColumnLabelTextBox.Text;
+            if (timesPlayedColumnCheckBox.Checked)
+                columnCount++;
+
+            // Save the number of columns
+            Properties.Settings.Default.NumberOfColumns = columnCount;
 
             // Save the Web Properties
             Properties.Settings.Default.YouTubeWebPlayer = youTubeWebPlayerCheckBox.Checked;

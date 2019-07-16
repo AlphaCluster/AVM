@@ -41,7 +41,7 @@ namespace AVM
         #region Properties
         /// <summary>
         /// Tells whether or not the video should be played after the
-        /// viewer has been left.
+        /// viewer is closed.
         /// </summary>
         public bool Play
         {
@@ -64,7 +64,7 @@ namespace AVM
 
         #region Button Methods
         /// <summary>
-        /// Set play to true and closes the form.
+        /// Sets play to true and closes the form.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

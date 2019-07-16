@@ -36,7 +36,7 @@ namespace AVM.Types
 
         #region Properties
         /// <summary>
-        /// This is the files uri (filename).
+        /// The file's uri (filename).
         /// </summary>
         public Uri Uri
         {
@@ -45,7 +45,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This stores and returns valid video encoding names.
+        /// Stores and returns valid video encoding names.
         /// </summary>
         public string Video_Encoding
         {
@@ -63,7 +63,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This stores and returns valid audio encoding names.
+        /// Stores and returns valid audio encoding names.
         /// </summary>
         public string Audio_Encoding
         {
@@ -80,7 +80,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This stores and returns valid container names.
+        /// Stores and returns valid container names.
         /// </summary>
         public string Container
         {
@@ -100,26 +100,26 @@ namespace AVM.Types
 
         #region Constructors
         /// <summary>
-        /// This creates a basic version of FileData.
+        /// Creates a basic version of FileData.
         /// </summary>
         public FileData()
         {
         }
 
         /// <summary>
-        /// This creates FileData using the full path to the file.
+        /// Creates FileData using the full path to the file.
         /// </summary>
-        /// <param name="fullPath">This is the full path to the file.</param>
+        /// <param name="fullPath">The full path to the file.</param>
         public FileData(string fullPath)
         {
             _uri = new Uri(fullPath);
         }
         
         /// <summary>
-        /// This creates FileData using the path and name of the file.
+        /// Creates FileData using the path and name of the file.
         /// </summary>
-        /// <param name="path">This is the path to the file.</param>
-        /// <param name="name">This is the name of the file.</param>
+        /// <param name="path">The path to the file.</param>
+        /// <param name="name">The name of the file.</param>
         public FileData(string path, string name)
         {
             _uri = new Uri(path + name);

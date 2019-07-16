@@ -52,7 +52,7 @@ namespace AVM
 
         #region Group Button Panel
         /// <summary>
-        /// This prompts the user for a group name and if it gets a name it adds it to
+        /// Prompts the user for a group name and if it gets a name it adds it to
         /// database and then refreshes the groupListBox.
         /// </summary>
         /// <param name="sender"></param>
@@ -111,7 +111,7 @@ namespace AVM
             Importer importDialog = new Importer(this, db, groupListBox.SelectedIndex);
             importDialog.ShowDialog();
 
-            if (importDialog.BackupTookPlace)
+            if (importDialog.RestoreTookPlace)
             {
                 // Refresh nodes and move to root level.
                 db.CurrentGroup = 0;
@@ -147,7 +147,7 @@ namespace AVM
         /// If there is a current search on the nodes then it will redo the
         /// search based off of the new status of if it should be searching
         /// all nodes or just nodes in the current group.
-        /// This may refresh nodes.
+        /// May refresh nodes.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -168,7 +168,7 @@ namespace AVM
         /// If search is entered make sure to change current nodes listed to
         /// the search results. Different searches take place based off of
         /// the checkbox for searching all nodes.
-        /// Also refreshes nodes.
+        /// Refreshes nodes.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -198,7 +198,7 @@ namespace AVM
 
         #region Group ContextMenu Methods
         /// <summary>
-        /// Enables and disabled the options in the group right-click menu based
+        /// Enables and disables the options in the group right-click menu based
         /// on whether or not a group is currently selected.
         /// </summary>
         /// <param name="sender"></param>
@@ -220,7 +220,7 @@ namespace AVM
 
         /// <summary>
         /// Creates a new group by running the GroupEditor.
-        /// Also refreshes groups.
+        /// Refreshes groups.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -239,7 +239,7 @@ namespace AVM
 
         /// <summary>
         /// Renames currently selected group using the GroupEditor.
-        /// Also refreshes groups.
+        /// Refreshes groups.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -262,7 +262,7 @@ namespace AVM
         /// <summary>
         /// Deletes currently selected group. If PromptOnDelete is true
         /// it will prompt the users using DeleteConfirmation.
-        /// Also refreshes groups.
+        /// Refreshes groups.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -338,7 +338,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// Opens up the NodeViewer for the currently selected node. And runs play
+        /// Opens the NodeViewer for the currently selected node. Runs play
         /// if the viewer wants the currently selected node to be played.
         /// </summary>
         /// <param name="sender"></param>
@@ -346,16 +346,19 @@ namespace AVM
         private void infoNodeMenuItem_Click(object sender,
                                             EventArgs e)
         {
-            AVM.NodeViewer viewer = new AVM.NodeViewer(
-                    nodes[nodeListView.SelectedIndices[0]]);
-            viewer.ShowDialog();
-            if (viewer.Play)
-                playNodeMenuItem_Click(sender, e);
+            if (nodeListView.SelectedIndices.Count > 0)
+            {
+                AVM.NodeViewer viewer = new AVM.NodeViewer(
+                        nodes[nodeListView.SelectedIndices[0]]);
+                viewer.ShowDialog();
+                if (viewer.Play)
+                    playNodeMenuItem_Click(sender, e);
+            }
         }
 
         /// <summary>
-        /// Edit the currently selected node using NodeEditor.
-        /// Also refreshes nodes.
+        /// Edits the currently selected node using NodeEditor.
+        /// Refreshes nodes.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -379,40 +382,43 @@ namespace AVM
         /// <summary>
         /// Deletes the currently selected node. If PromptOnDelete is selected
         /// then DeleteConfirmation will ask for confirmation.
-        /// Also refreshes nodes.
+        /// Refreshes nodes.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void deleteNodeMenuItem_Click(object sender, EventArgs e)
         {
-            bool delete = false; // this is set to true if delete should take place
-
-            // If PromptOnDelete then run the confirmation dialog
-            if (Properties.Settings.Default.PromptOnDelete)
+            if (nodeListView.SelectedIndices.Count > 0)
             {
-                DeleteConfirmation prompt = new DeleteConfirmation();
-                prompt.ShowDialog();
-                delete = prompt.Delete;
-            }
-            // else just set to delete
-            else
-                delete = true;
+                bool delete = false; // this is set to true if delete should take place
 
-            if (delete)
-            {
-                ListView.SelectedIndexCollection indexes = nodeListView.SelectedIndices;
-                foreach (int index in indexes)
-                    db.removeNode(nodes[index]);
-                db.refreshNodes(ref nodes);
-                loadNodes();
+                // If PromptOnDelete then run the confirmation dialog
+                if (Properties.Settings.Default.PromptOnDelete)
+                {
+                    DeleteConfirmation prompt = new DeleteConfirmation();
+                    prompt.ShowDialog();
+                    delete = prompt.Delete;
+                }
+                // else just set to delete
+                else
+                    delete = true;
+
+                if (delete)
+                {
+                    ListView.SelectedIndexCollection indexes = nodeListView.SelectedIndices;
+                    foreach (int index in indexes)
+                        db.removeNode(nodes[index]);
+                    db.refreshNodes(ref nodes);
+                    loadNodes();
+                }
             }
         }
         #endregion
 
         #region Group Methods
         /// <summary>
-        /// This switches the current group to the last currently selected one.
-        /// Basically traverses into the group that is selected.
+        /// Switches the current group to the last currently selected one.
+        /// Traverses into the group that is selected.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -428,7 +434,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// This switches to current group to its parent.
+        /// Switches the current group to its parent.
         /// Traverses backward into the parent group.
         /// </summary>
         /// <param name="sender"></param>
@@ -459,7 +465,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// This makes sure that the "<" and ">" buttons are correctly enabled.
+        /// Makes sure that the "<" and ">" buttons are correctly enabled.
         /// </summary>
         private void enableForwardBackButtons()
         {
@@ -476,7 +482,7 @@ namespace AVM
         /// <summary>
         /// If text changes then it does a search based on what is in the textbox and
         /// places the results in the group list.
-        /// Also refreshes groups.
+        /// Refreshes groups.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -499,7 +505,7 @@ namespace AVM
         /// <summary>
         /// When a different group is selected refresh the node list based on what is
         /// in the newly selected group.
-        /// Also refreshes nodes.
+        /// Refreshes nodes.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -621,7 +627,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// When ColumnWidth is changed save it to the settings.
+        /// Saves a changed ColumnWidth to the settings.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -705,9 +711,9 @@ namespace AVM
         }
 
         /// <summary>
-        /// This plays the selected node.
-        /// If it is an episode it will set it also as lastWatched.
-        /// Also refreshes nodes. (because of possible lastWatched change)
+        /// Plays the selected node.
+        /// If it is an episode it will set it as lastWatched.
+        /// Refreshes nodes. (because of possible lastWatched change)
         /// </summary>
         public void playSelectedNode()
         {
@@ -777,6 +783,8 @@ namespace AVM
                             tempPlayer.WaitForExit();
                     }
                     this.WindowState = FormWindowState.Normal;
+                    db.refreshNodes(ref nodes);
+                    loadNodes();
                 }
 
                 // If there is a search dont do a normal refresh.
@@ -791,7 +799,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// This checks for the user pressing the backspace key when a node is selected.
+        /// Checks for the user pressing the backspace key when a node is selected.
         /// If PromptOnDelete is enabled will prompt user with DeleteConfirmation otherwise
         /// will just delete the video when backspace is pressed and BackspaceDelete is
         /// enabled.
@@ -831,8 +839,8 @@ namespace AVM
 
         #region Misc Methods
         /// <summary>
-        /// This creates the MainForm and also loads or creates the database.
-        /// Also refreshed both nodes and groups to their last selected.
+        /// Creates the MainForm and also loads or creates the database.
+        /// Refreshes both nodes and groups to their last selected.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -885,7 +893,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// This sets up all of the columnWidths and columnNames.
+        /// Sets up all of the columnWidths and columnNames.
         /// </summary>
         private void formatColumns()
         {

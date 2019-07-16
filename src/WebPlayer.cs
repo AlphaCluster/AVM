@@ -51,7 +51,7 @@ namespace AVM
 
         #region Constructor
         /// <summary>
-        /// Makes a new WebPlayer nothing fancy here.
+        /// Makes a new WebPlayer.
         /// </summary>
         public WebPlayer()
         {
@@ -84,7 +84,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// When a YouTube video is playing refresh the YouTube video to the new size.
+        /// Refresh the YouTube video to the new size when a YouTube video is playing.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -101,7 +101,7 @@ namespace AVM
         }
 
         /// <summary>
-        /// Prevent errors from showing up when the form is closed.
+        /// Prevents errors from showing up when the form is closed.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

@@ -198,9 +198,9 @@ namespace AVM.Parsers
         }
 
         /// <summary>
-        /// Parses through the path it's configured to parse.
+        /// Parses through the path it is configured to parse.
         /// </summary>
-        /// <param name="parent_id">This is the group_id for the 
+        /// <param name="parent_id">The group_id for the 
         /// group it is going to be inside of.</param>
         public void parse(long parent_id)
         {

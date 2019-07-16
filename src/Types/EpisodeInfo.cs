@@ -36,7 +36,7 @@ namespace AVM.Types
 
         #region Properties
         /// <summary>
-        /// This is the episode number for the node.
+        /// Episode number for the node.
         /// </summary>
         public int EpisodeNumber
         {
@@ -45,7 +45,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This is the season number for the node.
+        /// Season number for the node.
         /// </summary>
         public int SeasonNumber
         {
@@ -54,7 +54,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This is the name of the episode for the node.
+        /// Name of the episode for the node.
         /// </summary>
         public string EpisodeName
         {
@@ -63,7 +63,7 @@ namespace AVM.Types
         }
 
         /// <summary>
-        /// This is whether or not the episode was the last one watched.
+        /// Whether or not the episode was the last one watched.
         /// </summary>
         public bool LastWatched
         {
