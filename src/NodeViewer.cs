@@ -38,13 +38,82 @@ namespace AVM
         private AVM.Types.Node _node = null;
         private bool _play = false;
 
+        #region Properties
+        /// <summary>
+        /// Tells whether or not the video should be played after the
+        /// viewer has been left.
+        /// </summary>
+        public bool Play
+        {
+            get { return _play; }
+        }
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Creates a NodeViewer form populated with the information from
+        /// the passed in node.
+        /// </summary>
+        /// <param name="node"></param>
         public NodeViewer(AVM.Types.Node node)
         {
             InitializeComponent();
             _node = node;
         }
+        #endregion
 
-        private void NodeViewer_Load(object sender, EventArgs e)
+        #region Button Methods
+        /// <summary>
+        /// Set play to true and closes the form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void playButton_Click(object sender,
+                                      EventArgs e)
+        {
+            _play = true;
+            this.Close();
+        }
+
+        /// <summary>
+        /// Opens a web browser to a search page for the chosen service.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void moreInfoButton_Click(object sender,
+                                          EventArgs e)
+        {
+            string searchString = "";
+            switch (Properties.Settings.Default.MoreInfoService)
+            {
+                // Add to this list if you want to add another search.
+                case "imdb":
+                    searchString = "http://www.imdb.com/find?s=all&q=$SEARCH&x=0&y=0".Replace("$SEARCH", _node.Name.Replace(" ", "%20"));
+                    break;
+                case "Anime News Network":
+                    searchString = "http://www.animenewsnetwork.com/search?cx=016604166282602569737%3Aznd1ysjewre&q=$SEARCH".Replace("$SEARCH", _node.Name.Replace(" ", "%20"));
+                    break;
+                case "Wikipedia":
+                    searchString = "http://en.wikipedia.org/wiki/Special:Search?search=$SEARCH".Replace("$SEARCH", _node.Name.Replace(" ", "%20"));
+                    break;
+                default:
+                    searchString = "http://www.google.com/search?q=$SEARCH".Replace("$SEARCH", _node.Name.Replace(" ", "%20"));
+                    break;
+            }
+            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(searchString);
+            System.Diagnostics.Process tempPlayer;
+            tempPlayer = System.Diagnostics.Process.Start(psi);
+        }
+        #endregion
+
+        #region Other Methods
+        /// <summary>
+        /// Loads all of the information stored in _node.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NodeViewer_Load(object sender,
+                                     EventArgs e)
         {
             nameLabel.Text = "Name: " + _node.Name;
             if (_node.IsEpisode)
@@ -68,39 +137,6 @@ namespace AVM
                 containerLabel.Text = "Container Type: " + _node.File.Container;
             }
         }
-
-        private void playButton_Click(object sender, EventArgs e)
-        {
-            _play = true;
-            this.Close();
-        }
-
-        public bool Play
-        {
-            get { return _play; }
-        }
-
-        private void moreInfoButton_Click(object sender, EventArgs e)
-        {
-            string searchString = "";
-            switch (Properties.Settings.Default.MoreInfoService)
-            {
-                case "imdb":
-                    searchString = "http://www.imdb.com/find?s=all&q=$SEARCH&x=0&y=0".Replace("$SEARCH", _node.Name.Replace(" ", "%20"));
-                    break;
-                case "Anime News Network":
-                    searchString = "http://www.animenewsnetwork.com/search?cx=016604166282602569737%3Aznd1ysjewre&q=$SEARCH".Replace("$SEARCH", _node.Name.Replace(" ", "%20"));
-                    break;
-                case "Wikipedia":
-                    searchString = "http://en.wikipedia.org/wiki/Special:Search?search=$SEARCH".Replace("$SEARCH", _node.Name.Replace(" ", "%20"));
-                    break;
-                default:
-                    searchString = "http://www.google.com/search?q=$SEARCH".Replace("$SEARCH", _node.Name.Replace(" ", "%20"));
-                    break;
-            }
-            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(searchString);
-            System.Diagnostics.Process tempPlayer;
-            tempPlayer = System.Diagnostics.Process.Start(psi);
-        }
+        #endregion
     }
 }

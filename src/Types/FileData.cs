@@ -34,12 +34,19 @@ namespace AVM.Types
         private string _audioEncoding;
         private string _container;
 
+        #region Properties
+        /// <summary>
+        /// This is the files uri (filename).
+        /// </summary>
         public Uri Uri
         {
             get { return _uri; }
             set { _uri = value; }
         }
 
+        /// <summary>
+        /// This stores and returns valid video encoding names.
+        /// </summary>
         public string Video_Encoding
         {
             get { return _videoEncoding; }
@@ -55,6 +62,9 @@ namespace AVM.Types
             }
         }
 
+        /// <summary>
+        /// This stores and returns valid audio encoding names.
+        /// </summary>
         public string Audio_Encoding
         {
             get { return _audioEncoding; }
@@ -69,13 +79,16 @@ namespace AVM.Types
             }
         }
 
+        /// <summary>
+        /// This stores and returns valid container names.
+        /// </summary>
         public string Container
         {
             get { return _container; }
             set
             {
                 // Test to make sure its a valid container
-                if ((value == "flv") || (value == "avi") || (value == "mkv") || 
+                if ((value == "flv") || (value == "avi") || (value == "mkv") ||
                     (value == "ogm") || (value == "mp4") || (value == "wmv") ||
                     (value == "mpeg") || (value == "mpg"))
                     _container = value;
@@ -83,20 +96,34 @@ namespace AVM.Types
                     _container = "";
             }
         }
+        #endregion
 
-        // Constructors
+        #region Constructors
+        /// <summary>
+        /// This creates a basic version of FileData.
+        /// </summary>
         public FileData()
         {
         }
 
+        /// <summary>
+        /// This creates FileData using the full path to the file.
+        /// </summary>
+        /// <param name="fullPath">This is the full path to the file.</param>
         public FileData(string fullPath)
         {
             _uri = new Uri(fullPath);
         }
         
+        /// <summary>
+        /// This creates FileData using the path and name of the file.
+        /// </summary>
+        /// <param name="path">This is the path to the file.</param>
+        /// <param name="name">This is the name of the file.</param>
         public FileData(string path, string name)
         {
             _uri = new Uri(path + name);
         }
+        #endregion
     }
 }

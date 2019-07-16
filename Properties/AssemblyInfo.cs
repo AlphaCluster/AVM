@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("AVM")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Nicholas Omann")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("A Video Manager")]
 [assembly: AssemblyCopyright("Copyright ©  2008-2009")]
 [assembly: AssemblyTrademark("")]

@@ -174,6 +174,7 @@
             this.fileLastWatchedCheckBox.TabIndex = 18;
             this.fileLastWatchedCheckBox.Text = "Last Watched";
             this.fileLastWatchedCheckBox.UseVisualStyleBackColor = true;
+            this.fileLastWatchedCheckBox.CheckedChanged += new System.EventHandler(this.lastWatched_CheckedChanged);
             // 
             // fileSeasonNumberTextBox
             // 
@@ -378,6 +379,7 @@
             this.youTubeLastWatchedCheckBox.TabIndex = 30;
             this.youTubeLastWatchedCheckBox.Text = "Last Watched";
             this.youTubeLastWatchedCheckBox.UseVisualStyleBackColor = true;
+            this.youTubeLastWatchedCheckBox.CheckedChanged += new System.EventHandler(this.lastWatched_CheckedChanged);
             // 
             // youTubeSeasonNumberTextBox
             // 
@@ -582,6 +584,7 @@
             this.huluLastWatchedCheckBox.TabIndex = 43;
             this.huluLastWatchedCheckBox.Text = "Last Watched";
             this.huluLastWatchedCheckBox.UseVisualStyleBackColor = true;
+            this.huluLastWatchedCheckBox.CheckedChanged += new System.EventHandler(this.lastWatched_CheckedChanged);
             // 
             // huluSeasonNumberTextBox
             // 

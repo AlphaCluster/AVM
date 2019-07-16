@@ -37,7 +37,31 @@ namespace AVM
     {
         private string _name;
 
-        public GroupEditor(string originalName, string formName, string buttonName)
+        #region Properties
+        /// <summary>
+        /// Returns the new name for the group.
+        /// Returns "" if no new name is created.
+        /// </summary>
+        public string NewName
+        {
+            get { return _name; }
+            set { _name = value; }
+        }
+        #endregion
+
+        #region Constructors
+        /// <summary>
+        /// Creates a GroupEditorDialog using the originalName passed in as the
+        /// base name. Also the title can be configured using formName and the
+        /// button can be titled using buttonName so that the Editor can be used
+        /// both for addition and editing of groups.
+        /// </summary>
+        /// <param name="originalName">This is used to populate the name TextBox.</param>
+        /// <param name="formName">This string will be used as the forms title.</param>
+        /// <param name="buttonName">This will be the name on the acceptence button.</param>
+        public GroupEditor(string originalName,
+                           string formName,
+                           string buttonName)
         {
             InitializeComponent();
             _name = originalName;
@@ -45,33 +69,55 @@ namespace AVM
             this.Text = formName;
             okButton.Text = buttonName;
         }
+        #endregion
 
-        public string NewName
+        #region Methods
+        /// <summary>
+        /// This merely closes the dialog so that the mainForm can get the NewName.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void okButton_Click(object sender,
+                                    EventArgs e)
         {
-            get { return _name; }
-            set { _name = value; }
+            this.Close();
         }
 
-        private void renameTextBox_TextChanged(object sender, EventArgs e)
-        {
-            _name = renameTextBox.Text;
-        }
-
-        private void cancelButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// This closes the form and makes it so NewName will return "".
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cancelButton_Click(object sender,
+                                        EventArgs e)
         {
             _name = "";
             this.Close();
         }
-
-        private void okButton_Click(object sender, EventArgs e)
+        
+        /// <summary>
+        /// This saves the text in the TextBox to _name every time it's changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void renameTextBox_TextChanged(object sender,
+                                               EventArgs e)
         {
-            this.Close();
+            _name = renameTextBox.Text;
         }
 
-        private void renameTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        /// <summary>
+        /// This method allows for the user to press "enter" in order to finish
+        /// using this dialog.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void renameTextBox_KeyPress(object sender,
+                                            KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)13)
                 this.Close();
         }
+        #endregion
     }
 }

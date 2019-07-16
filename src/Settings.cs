@@ -39,13 +39,36 @@ namespace AVM
         private Database _db;
         private bool _success = false;
 
+        #region Properties
+        /// <summary>
+        /// Returns whether or not to refresh the nodeListView columns.
+        /// </summary>
+        public bool Success
+        {
+            get { return _success; }
+        }
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Creates a new Settings form and passes in db incase a backup is made.
+        /// </summary>
+        /// <param name="db"></param>
         public Settings(Database db)
         {
             InitializeComponent();
             _db = db;
         }
+        #endregion
 
-        private void applyButton_Click(object sender, EventArgs e)
+        #region Click Methods
+        /// <summary>
+        /// Applies all the changes made in Settings.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void applyButton_Click(object sender,
+                                       EventArgs e)
         {
             // Save the Column Properties
             Properties.Settings.Default.NameColumnEnabled =
@@ -95,9 +118,9 @@ namespace AVM
             Properties.Settings.Default.FileNamePattern = patternTextBox.Text;
             Properties.Settings.Default.MoreInfoService = moreInfoComboBox.Text;
 
-            Properties.Settings.Default.PromptOnDelete = 
+            Properties.Settings.Default.PromptOnDelete =
                     promptOnDeleteCheckBox.Checked;
-            Properties.Settings.Default.DoubleClickPlay = 
+            Properties.Settings.Default.DoubleClickPlay =
                     doubleClickPlayCheckBox.Checked;
             Properties.Settings.Default.BackspaceDelete =
                     backspaceDeleteCheckBox.Checked;
@@ -108,12 +131,25 @@ namespace AVM
             this.Close();
         }
 
-        private void cancelButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Closes the form without doing anything else. (Does not save settings)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cancelButton_Click(object sender,
+                                        EventArgs e)
         {
             this.Close();
         }
 
-        private void backupButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Prompts for a file to save the xml backup to and creates an
+        /// xml backup from the current database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backupButton_Click(object sender,
+                                        EventArgs e)
         {
             backupSaveFileDialog.ShowDialog();
 
@@ -125,16 +161,49 @@ namespace AVM
             }
         }
 
-        private void Settings_Load(object sender, EventArgs e)
+        /// <summary>
+        /// Resets settings to their defaults and reloads the form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void resetButton_Click(object sender,
+                                       EventArgs e)
+        {
+            Properties.Settings.Default.Reset();
+            loadProperties();
+        }
+
+        /// <summary>
+        /// Loads a color select dialog to change the last watched highlight
+        /// color.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void lastWatchedColorPictureBox_Click(object sender,
+                                                      EventArgs e)
+        {
+            lastWatchedColorDialog.Color = _lastWatchedColor;
+            lastWatchedColorDialog.ShowDialog();
+            _lastWatchedColor = lastWatchedColorDialog.Color;
+            lastWatchedColorPictureBox.BackColor = _lastWatchedColor;
+        }
+        #endregion
+
+        #region Other Methods
+        /// <summary>
+        /// Loads the properties when the form loads.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Settings_Load(object sender,
+                                   EventArgs e)
         {
             loadProperties();
         }
 
-        public bool Success
-        {
-            get { return _success; }
-        }
-
+        /// <summary>
+        /// Loads all the fields properly from the stored settings.
+        /// </summary>
         private void loadProperties()
         {
             nameColumnCheckBox.Checked =
@@ -182,9 +251,9 @@ namespace AVM
             patternTextBox.Text = Properties.Settings.Default.FileNamePattern;
             moreInfoComboBox.Text = Properties.Settings.Default.MoreInfoService;
 
-            promptOnDeleteCheckBox.Checked = 
+            promptOnDeleteCheckBox.Checked =
                     Properties.Settings.Default.PromptOnDelete;
-            doubleClickPlayCheckBox.Checked = 
+            doubleClickPlayCheckBox.Checked =
                     Properties.Settings.Default.DoubleClickPlay;
             backspaceDeleteCheckBox.Checked =
                     Properties.Settings.Default.BackspaceDelete;
@@ -192,21 +261,6 @@ namespace AVM
             _lastWatchedColor = Properties.Settings.Default.LastWatchedColor;
             lastWatchedColorPictureBox.BackColor = _lastWatchedColor;
         }
-
-        private void resetButton_Click(object sender,
-                                       EventArgs e)
-        {
-            Properties.Settings.Default.Reset();
-            loadProperties();
-        }
-
-        private void lastWatchedColorPictureBox_Click(object sender,
-                                                     EventArgs e)
-        {
-            lastWatchedColorDialog.Color = _lastWatchedColor;
-            lastWatchedColorDialog.ShowDialog();
-            _lastWatchedColor = lastWatchedColorDialog.Color;
-            lastWatchedColorPictureBox.BackColor = _lastWatchedColor;
-        }
+        #endregion
     }
 }

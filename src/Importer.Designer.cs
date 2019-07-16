@@ -155,6 +155,7 @@
             // 
             // folderAddButton
             // 
+            this.folderAddButton.Enabled = false;
             this.folderAddButton.Location = new System.Drawing.Point(205, 99);
             this.folderAddButton.Margin = new System.Windows.Forms.Padding(4);
             this.folderAddButton.Name = "folderAddButton";
@@ -171,6 +172,7 @@
             this.folderFileTextBox.Name = "folderFileTextBox";
             this.folderFileTextBox.Size = new System.Drawing.Size(241, 22);
             this.folderFileTextBox.TabIndex = 12;
+            this.folderFileTextBox.TextChanged += new System.EventHandler(this.folderFileTextBox_TextChanged);
             // 
             // folderBrowseButton
             // 
@@ -216,6 +218,7 @@
             // 
             // groupComboBox
             // 
+            this.groupComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.groupComboBox.FormattingEnabled = true;
             this.groupComboBox.Location = new System.Drawing.Point(146, 8);
             this.groupComboBox.Margin = new System.Windows.Forms.Padding(4);
@@ -232,6 +235,7 @@
             this.groupForwardButton.TabIndex = 5;
             this.groupForwardButton.Text = ">";
             this.groupForwardButton.UseVisualStyleBackColor = true;
+            this.groupForwardButton.Click += new System.EventHandler(this.groupForwardButton_Click);
             // 
             // groupBackButton
             // 
@@ -242,6 +246,7 @@
             this.groupBackButton.TabIndex = 7;
             this.groupBackButton.Text = "<";
             this.groupBackButton.UseVisualStyleBackColor = true;
+            this.groupBackButton.Click += new System.EventHandler(this.groupBackButton_Click);
             // 
             // backupTabPage
             // 
@@ -261,6 +266,7 @@
             // 
             // backupAddButton
             // 
+            this.backupAddButton.Enabled = false;
             this.backupAddButton.Location = new System.Drawing.Point(205, 99);
             this.backupAddButton.Margin = new System.Windows.Forms.Padding(4);
             this.backupAddButton.Name = "backupAddButton";

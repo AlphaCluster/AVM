@@ -34,6 +34,48 @@ namespace AVM.Types
         private bool _lastWatched;
         private string _episodeName;
 
+        #region Properties
+        /// <summary>
+        /// This is the episode number for the node.
+        /// </summary>
+        public int EpisodeNumber
+        {
+            get { return _episodeNumber; }
+            set { _episodeNumber = value; }
+        }
+
+        /// <summary>
+        /// This is the season number for the node.
+        /// </summary>
+        public int SeasonNumber
+        {
+            get { return _seasonNumber; }
+            set { _seasonNumber = value; }
+        }
+
+        /// <summary>
+        /// This is the name of the episode for the node.
+        /// </summary>
+        public string EpisodeName
+        {
+            get { return _episodeName; }
+            set { _episodeName = value; }
+        }
+
+        /// <summary>
+        /// This is whether or not the episode was the last one watched.
+        /// </summary>
+        public bool LastWatched
+        {
+            get { return _lastWatched; }
+            set { _lastWatched = value; }
+        }
+        #endregion
+
+        #region Constructors
+        /// <summary>
+        /// Creates a basic version of EpisodeInfo.
+        /// </summary>
         public EpisodeInfo()
         {
             _episodeName = "";
@@ -42,6 +84,10 @@ namespace AVM.Types
             _seasonNumber = -1;
         }
 
+        /// <summary>
+        /// Creates EpisodeInfo with a populated episode number.
+        /// </summary>
+        /// <param name="episodeNumber">The nodes episode number.</param>
         public EpisodeInfo(int episodeNumber)
         {
             _episodeName = "";
@@ -49,30 +95,6 @@ namespace AVM.Types
             _episodeNumber = episodeNumber;
             _seasonNumber = -1;
         }
-
-        public int EpisodeNumber
-        {
-            get { return _episodeNumber; }
-            set { _episodeNumber = value; }
-        }
-
-        public int SeasonNumber
-        {
-            get { return _seasonNumber; }
-            set { _seasonNumber = value; }
-        }
-
-        public string EpisodeName
-        {
-            get { return _episodeName; }
-            set { _episodeName = value; }
-        }
-
-        public bool LastWatched
-        {
-            get { return _lastWatched; }
-            set { _lastWatched = value; }
-        }
-
+        #endregion
     }
 }

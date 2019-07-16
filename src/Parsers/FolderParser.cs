@@ -33,7 +33,6 @@ namespace AVM.Parsers
     class FolderParser
     {
         private string path = "";
-        private string[] types = { "*.avi", "*.mkv", "*.ogm" };
         private List<AVM.Types.Node> nodes;
         private List<AVM.Types.Group> groups;
         private long last_node = 0;
@@ -41,20 +40,48 @@ namespace AVM.Parsers
         private string _pattern = Properties.Settings.Default.FileNamePattern;
         private AVM.Database _db;
 
+        #region Properties
+        /// <summary>
+        /// Sets the pattern used to parse the filename.
+        /// </summary>
+        public string Pattern
+        {
+            get { return _pattern; }
+            set { _pattern = value; }
+        }
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Creates a basic FolderParser.
+        /// </summary>
         public FolderParser()
         {
         }
 
-        public FolderParser(string path, AVM.Database db)
+        /// <summary>
+        /// Creates a Folder parser for a given path and using the passed
+        /// in database.
+        /// </summary>
+        /// <param name="path">The path to the folder that is to be parsed.</param>
+        /// <param name="db">The database to load groups and nodes into.</param>
+        public FolderParser(string path,
+                            AVM.Database db)
         {
             this.path = path;
             _db = db;
         }
+        #endregion
 
+        #region Methods
+        /// <summary>
+        /// Parses a single folder for files and additional folders.
+        /// </summary>
+        /// <param name="folder">The folder to parse.</param>
+        /// <param name="parent_id">The parent_id of the groups parient.</param>
         private void parseFolder(DirectoryInfo folder,
                                  long parent_id)
         {
-            //Console.WriteLine((last_group + 1) + " " + cleanString(folder.Name));
             AVM.Types.Group group = new AVM.Types.Group();
             group.Id = ++last_group;
             group.ParentId = parent_id;
@@ -74,7 +101,14 @@ namespace AVM.Parsers
             }
         }
 
-        public AVM.Types.Node parseFile(long parent_group, FileInfo file)
+        /// <summary>
+        /// Parses a single file using the pattern.
+        /// </summary>
+        /// <param name="parent_group">Group_id of the parent group.</param>
+        /// <param name="file">The file to be parsed.</param>
+        /// <returns>A node with all the data that could be parsed from the file.</returns>
+        public AVM.Types.Node parseFile(long parent_group,
+                                        FileInfo file)
         {
             string ext = file.Extension.ToLower();
             string name;
@@ -163,6 +197,11 @@ namespace AVM.Parsers
                 return null;
         }
 
+        /// <summary>
+        /// Parses through the path it's configured to parse.
+        /// </summary>
+        /// <param name="parent_id">This is the group_id for the 
+        /// group it is going to be inside of.</param>
         public void parse(long parent_id)
         {
             groups = new List<AVM.Types.Group>();
@@ -188,17 +227,11 @@ namespace AVM.Parsers
                 Console.WriteLine("Path: " + path + "\nDoes not work!");
         }
 
-        public string Pattern
-        {
-            get { return _pattern; }
-            set { _pattern = value; }
-        }
-
         /// <summary>
         /// Removes everything between a () and [] in the string.
         /// </summary>
-        /// <param name="original"></param>
-        /// <returns></returns>
+        /// <param name="original">The original string to be cleaned.</param>
+        /// <returns>The clean string.</returns>
         private string cleanString(string original)
         {
             string clean = original;
@@ -226,5 +259,6 @@ namespace AVM.Parsers
 
             return clean;
         }
+        #endregion
     }
 }

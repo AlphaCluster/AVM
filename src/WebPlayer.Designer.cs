@@ -40,7 +40,6 @@
             this.videoWebBrowser.ScrollBarsEnabled = false;
             this.videoWebBrowser.Size = new System.Drawing.Size(565, 366);
             this.videoWebBrowser.TabIndex = 0;
-            this.videoWebBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.videoWebBrowser_Navigating);
             // 
             // WebPlayer
             // 

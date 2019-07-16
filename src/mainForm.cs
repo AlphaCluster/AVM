@@ -34,79 +34,217 @@ using System.Windows.Forms;
 
 namespace AVM
 {
-    public partial class mainForm : Form
+    public partial class MainForm : Form
     {
         public Database db;
         private List<AVM.Types.Group> groups = new List<AVM.Types.Group>();
         private List<AVM.Types.Node> nodes = new List<AVM.Types.Node>();
 
-        private void mainForm_Load(object sender, EventArgs e)
-        {
-            if (Properties.Settings.Default.LastListView == null)
-                formatColumns();
-            else
-                nodeListView = Properties.Settings.Default.LastListView;
-            
-            //db = new AVM.Database(System.IO.Directory.GetCurrentDirectory().ToString() + "\\VideoManager.db3");
-            db = new AVM.Database(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\VideoManager.db3");
-
-            db.ParentGroup = Properties.Settings.Default.LastParentGroup;
-            db.refreshGroups(groupListBox);
-
-            if (groupListBox.Items.Count > Properties.Settings.Default.LastSelectedIndex)
-                groupListBox.SelectedIndex = Properties.Settings.Default.LastSelectedIndex;
-            else
-                groupListBox.SelectedIndex = -1;
-
-            // See if a group is selected
-            if (db.CurrentGroup != 0)
-                groupTitleLabel.Text = db.findBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
-            else
-                groupTitleLabel.Text = "";
-
-            // Enable and disable buttons as needed
-            enableForwardBackButtons();
-        }
-
-        public mainForm()
+        #region Constructors
+        /// <summary>
+        /// Basic class constructor. Literally nothing beyond InitializeComponets takes place here.
+        /// </summary>
+        public MainForm()
         {
             InitializeComponent();
         }
+        #endregion
 
         #region Group Button Panel
-        private void newGroupButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// This prompts the user for a group name and if it gets a name it adds it to
+        /// database and then refreshes the groupListBox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void newGroupButton_Click(object sender,
+                                          EventArgs e)
         {
             GroupEditor editor = new GroupEditor("", "New Group", "Add");
             editor.ShowDialog();
             if (editor.NewName != "")
             {
                 db.addGroup(editor.NewName);
-                db.refreshGroups(groupListBox);
+                refreshGroups();
                 enableForwardBackButtons();
             }
         }
 
-        private void aboutButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Displays the Settings dialog for the user. If the columns are changed then
+        /// it reformats the columns and reloads the nodes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void settingsButton_Click(object sender,
+                                          EventArgs e)
+        {
+            AVM.Settings settingsWindow = new AVM.Settings(db);
+            settingsWindow.ShowDialog();
+            if (settingsWindow.Success)
+            {
+                formatColumns();
+                loadNodes();
+            }
+        }
+        
+        /// <summary>
+        /// Displays the About dialog for the user.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void aboutButton_Click(object sender,
+                                       EventArgs e)
         {
             AboutBox win = new AboutBox();
             win.ShowDialog();
         }
 
-        private void addNewGroupMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Displays the Importer dialog for the user which can restore backed up 
+        /// databases and can also cause both group and node refreshes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void importButton_Click(object sender, EventArgs e)
+        {
+            Importer importDialog = new Importer(this, db, groupListBox.SelectedIndex);
+            importDialog.ShowDialog();
+
+            if (importDialog.BackupTookPlace)
+            {
+                // Refresh nodes and move to root level.
+                db.CurrentGroup = 0;
+                groupTitleLabel.Text = "";
+                refreshGroups();
+                db.refreshNodes(ref nodes);
+                loadNodes();
+            }
+        }
+        #endregion
+
+        #region Node Panel
+        /// <summary>
+        /// Creates a new node by running the NodeEditor in "New" mode.
+        /// Also refreshes nodes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void newButton_Click(object sender,
+                                     EventArgs e)
+        {
+            NodeEditor editor = new NodeEditor("New", null);
+            editor.ShowDialog();
+            if (editor.Successful)
+            {
+                db.addNode(editor.Node);
+                db.refreshNodes(ref nodes);
+                loadNodes();
+            }
+        }
+
+        /// <summary>
+        /// If there is a current search on the nodes then it will redo the
+        /// search based off of the new status of if it should be searching
+        /// all nodes or just nodes in the current group.
+        /// This may refresh nodes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void nodeSearchAllCheckBox_CheckedChanged(object sender,
+                                                          EventArgs e)
+        {
+            if (nodeSearchTextBox.Text != "")
+            {
+                db.searchNodes(ref nodes,
+                               nodeSearchTextBox.Text,
+                               nodeSearchAllCheckBox.Checked);
+                groupTitleLabel.Text = "Search Results";
+                loadNodes();
+            }
+        }
+
+        /// <summary>
+        /// If search is entered make sure to change current nodes listed to
+        /// the search results. Different searches take place based off of
+        /// the checkbox for searching all nodes.
+        /// Also refreshes nodes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void nodeSearchTextBox_TextChanged(object sender,
+                                                   EventArgs e)
+        {
+            if (nodeSearchTextBox.Text != "")
+            {
+                db.searchNodes(ref nodes,
+                               nodeSearchTextBox.Text,
+                               nodeSearchAllCheckBox.Checked);
+                groupTitleLabel.Text = "Search Results";
+            }
+            else
+            {
+                db.refreshNodes(ref nodes);
+
+                if (db.CurrentGroup != 0)
+                    groupTitleLabel.Text = db.findBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
+                else
+                    groupTitleLabel.Text = "";
+            }
+
+            loadNodes();
+        }
+        #endregion
+
+        #region Group ContextMenu Methods
+        /// <summary>
+        /// Enables and disabled the options in the group right-click menu based
+        /// on whether or not a group is currently selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void groupBoxMenu_Opening(object sender,
+                                          CancelEventArgs e)
+        {
+            if (groupListBox.SelectedIndex >= 0)
+            {
+                renameGroupMenuItem.Enabled = true;
+                deleteGroupMenuItem.Enabled = true;
+            }
+            else
+            {
+                renameGroupMenuItem.Enabled = false;
+                deleteGroupMenuItem.Enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new group by running the GroupEditor.
+        /// Also refreshes groups.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void addNewGroupMenuItem_Click(object sender,
+                                               EventArgs e)
         {
             GroupEditor editor = new GroupEditor("", "New Group", "Add");
             editor.ShowDialog();
             if (editor.NewName != "")
             {
                 db.addGroup(editor.NewName);
-                db.refreshGroups(groupListBox);
+                refreshGroups();
                 enableForwardBackButtons();
             }
         }
-        #endregion
 
-        #region Group ContextMenu Functions
-        private void renameMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Renames currently selected group using the GroupEditor.
+        /// Also refreshes groups.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void renameMenuItem_Click(object sender,
+                                          EventArgs e)
         {
             if (groupListBox.SelectedIndex >= 0)
             {
@@ -116,11 +254,18 @@ namespace AVM
                 if (tempName != "")
                 {
                     db.renameGroup((AVM.Types.Group)groupListBox.SelectedItem, tempName);
-                    db.refreshGroups(groupListBox);
+                    refreshGroups();
                 }
             }
         }
 
+        /// <summary>
+        /// Deletes currently selected group. If PromptOnDelete is true
+        /// it will prompt the users using DeleteConfirmation.
+        /// Also refreshes groups.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void deleteGroupMenuItem_Click(object sender, EventArgs e)
         {
             if (groupListBox.SelectedIndex >= 0)
@@ -139,7 +284,7 @@ namespace AVM
                 if (delete)
                 {
                     db.removeGroup((AVM.Types.Group)groupListBox.SelectedItem);
-                    db.refreshGroups(groupListBox);
+                    refreshGroups();
                     db.CurrentGroup = db.ParentGroup;
                     if (groupListBox.Items.Count == 0)
                         forwardButton.Enabled = false;
@@ -153,66 +298,190 @@ namespace AVM
                 }
             }
         }
+        #endregion
 
-        private void groupBoxMenu_Opening(object sender, CancelEventArgs e)
+        #region Node ContextMenu Methods
+        /// <summary>
+        /// Enables and disabled the options in the node right-click menu based
+        /// on whether or not a node is currently selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void nodeBoxMenu_Opening(object sender,
+                                         CancelEventArgs e)
         {
-            if (groupListBox.SelectedIndex >= 0)
+            if (nodeListView.SelectedItems.Count > 0)
             {
-                renameGroupMenuItem.Enabled = true;
-                deleteGroupMenuItem.Enabled = true;
+                playNodeMenuItem.Enabled = true;
+                infoNodeMenuItem.Enabled = true;
+                editNodeMenuItem.Enabled = true;
+                deleteNodeMenuItem.Enabled = true;
             }
             else
             {
-                renameGroupMenuItem.Enabled = false;
-                deleteGroupMenuItem.Enabled = false;
+                playNodeMenuItem.Enabled = true;
+                infoNodeMenuItem.Enabled = true;
+                editNodeMenuItem.Enabled = true;
+                deleteNodeMenuItem.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Runs playSelectedNode.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void playNodeMenuItem_Click(object sender,
+                                            EventArgs e)
+        {
+            playSelectedNode();
+        }
+
+        /// <summary>
+        /// Opens up the NodeViewer for the currently selected node. And runs play
+        /// if the viewer wants the currently selected node to be played.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void infoNodeMenuItem_Click(object sender,
+                                            EventArgs e)
+        {
+            AVM.NodeViewer viewer = new AVM.NodeViewer(
+                    nodes[nodeListView.SelectedIndices[0]]);
+            viewer.ShowDialog();
+            if (viewer.Play)
+                playNodeMenuItem_Click(sender, e);
+        }
+
+        /// <summary>
+        /// Edit the currently selected node using NodeEditor.
+        /// Also refreshes nodes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void editNodeMenuItem_Click(object sender,
+                                            EventArgs e)
+        {
+            if (nodeListView.SelectedIndices.Count > 0)
+            {
+                NodeEditor editor = new NodeEditor("Edit " + nodes[nodeListView.SelectedIndices[0]].Name,
+                                                   nodes[nodeListView.SelectedIndices[0]]);
+                editor.ShowDialog();
+                if (editor.Successful)
+                {
+                    db.updateNode(nodes[nodeListView.SelectedIndices[0]], editor.Node);
+                    db.refreshNodes(ref nodes);
+                    loadNodes();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Deletes the currently selected node. If PromptOnDelete is selected
+        /// then DeleteConfirmation will ask for confirmation.
+        /// Also refreshes nodes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void deleteNodeMenuItem_Click(object sender, EventArgs e)
+        {
+            bool delete = false; // this is set to true if delete should take place
+
+            // If PromptOnDelete then run the confirmation dialog
+            if (Properties.Settings.Default.PromptOnDelete)
+            {
+                DeleteConfirmation prompt = new DeleteConfirmation();
+                prompt.ShowDialog();
+                delete = prompt.Delete;
+            }
+            // else just set to delete
+            else
+                delete = true;
+
+            if (delete)
+            {
+                ListView.SelectedIndexCollection indexes = nodeListView.SelectedIndices;
+                foreach (int index in indexes)
+                    db.removeNode(nodes[index]);
+                db.refreshNodes(ref nodes);
+                loadNodes();
             }
         }
         #endregion
 
-        private void mainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Properties.Settings.Default.LastListView = nodeListView;
-            Properties.Settings.Default.LastParentGroup = db.ParentGroup;
-            Properties.Settings.Default.LastSelectedIndex = groupListBox.SelectedIndex;
-            Properties.Settings.Default.Save();
-            db.Kill();
-        }
-
-        private void settingsButton_Click(object sender, EventArgs e)
-        {
-            AVM.Settings settingsWindow = new AVM.Settings(db);
-            settingsWindow.ShowDialog();
-            if (settingsWindow.Success)
-            {
-                formatColumns();
-                loadNodes();
-            }
-        }
-
-        private void switchGroupToSelected(object sender, EventArgs e)
+        #region Group Methods
+        /// <summary>
+        /// This switches the current group to the last currently selected one.
+        /// Basically traverses into the group that is selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void switchGroupToSelected(object sender,
+                                           EventArgs e)
         {
             if (groupListBox.SelectedIndex >= 0)
             {
                 db.ParentGroup = ((AVM.Types.Group)groupListBox.SelectedItem).Id;
-                db.refreshGroups(groupListBox);
+                refreshGroups();
                 enableForwardBackButtons();
             }
         }
 
-        private void backOneGroup(object sender, EventArgs e)
+        /// <summary>
+        /// This switches to current group to its parent.
+        /// Traverses backward into the parent group.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backOneGroup(object sender,
+                                  EventArgs e)
         {
             if (db.CurrentGroup != 0)
             {
                 db.CurrentGroup = db.ParentGroup;
                 refreshGroups();
+
+                //Reload nodes to the new group.
+                db.refreshNodes(ref nodes);
+                loadNodes();
+                //Select the currently opened group.
+                for (int i = 0; i < groups.Count; i++)
+                {
+                    if (groups[i].Id == db.CurrentGroup)
+                        groupListBox.SelectedIndex = i;
+                }
+
                 enableForwardBackButtons();
             }
-            
+
             if (db.ParentGroup == 0)
                 newButton.Enabled = false;
         }
 
-        private void searchGroupTextBox_TextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// This makes sure that the "<" and ">" buttons are correctly enabled.
+        /// </summary>
+        private void enableForwardBackButtons()
+        {
+            if (db.ParentGroup == 0)
+                backButton.Enabled = false;
+            else
+                backButton.Enabled = true;
+            if (groupListBox.Items.Count == 0)
+                forwardButton.Enabled = false;
+            else
+                forwardButton.Enabled = true;
+        }
+
+        /// <summary>
+        /// If text changes then it does a search based on what is in the textbox and
+        /// places the results in the group list.
+        /// Also refreshes groups.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void searchGroupTextBox_TextChanged(object sender,
+                                                    EventArgs e)
         {
             if (searchGroupTextBox.Text != "")
             {
@@ -222,29 +491,18 @@ namespace AVM
             }
             else
             {
-                db.refreshGroups(groupListBox);
+                refreshGroups();
                 enableForwardBackButtons();
             }
         }
 
-        private void importButton_Click(object sender, EventArgs e)
-        {
-            Importer importDialog = new Importer(this, db, groupListBox.SelectedIndex);
-            importDialog.ShowDialog();
-        }
-
-        private void newButton_Click(object sender, EventArgs e)
-        {
-            NodeEditor editor = new NodeEditor("New", null);
-            editor.ShowDialog();
-            if (editor.Successful)
-            {
-                db.addNode(editor.Node);
-                db.refreshNodes(ref nodes);
-                loadNodes();
-            }
-        }
-
+        /// <summary>
+        /// When a different group is selected refresh the node list based on what is
+        /// in the newly selected group.
+        /// Also refreshes nodes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void groupListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (groupListBox.SelectedItem != null)
@@ -262,11 +520,19 @@ namespace AVM
             loadNodes();
         }
 
+        /// <summary>
+        /// Refreshes the groups from the database.
+        /// </summary>
         public void refreshGroups()
         {
-            db.refreshGroups(groupListBox);
+            db.refreshGroups(groupListBox, ref groups);
         }
+        #endregion
 
+        #region Node Methods
+        /// <summary>
+        /// Populates the nodeListView based on what is supposed to be shown.
+        /// </summary>
         private void loadNodes()
         {
             nodeListView.Items.Clear();
@@ -354,104 +620,11 @@ namespace AVM
             }
         }
 
-        private void deleteNodeMenuItem_Click(object sender, EventArgs e)
-        {
-            bool delete = false; // this is set to true if delete should take place
-            
-            // If PromptOnDelete then run the confirmation dialog
-            if (Properties.Settings.Default.PromptOnDelete)
-            {
-                DeleteConfirmation prompt = new DeleteConfirmation();
-                prompt.ShowDialog();
-                delete = prompt.Delete;
-            }
-            // else just set to delete
-            else
-                delete = true;
-
-            if (delete)
-            {
-                ListView.SelectedIndexCollection indexes = nodeListView.SelectedIndices;
-                foreach (int index in indexes)
-                    db.removeNode(nodes[index]);
-                db.refreshNodes(ref nodes);
-                loadNodes();
-            }
-        }
-
-        private void editNodeMenuItem_Click(object sender, EventArgs e)
-        {
-            if (nodeListView.SelectedIndices.Count > 0)
-            {
-                NodeEditor editor = new NodeEditor("Edit " + nodes[nodeListView.SelectedIndices[0]].Name,
-                                                   nodes[nodeListView.SelectedIndices[0]]);
-                editor.ShowDialog();
-                if (editor.Successful)
-                {
-                    db.updateNode(nodes[nodeListView.SelectedIndices[0]], editor.Node);
-                    db.refreshNodes(ref nodes);
-                    loadNodes();
-                }
-            }
-        }
-
-        private void playNodeMenuItem_Click(object sender, EventArgs e)
-        {
-            playSelectedNode();
-        }
-
         /// <summary>
-        /// This makes sure that the "<" and ">" buttons are correctly enabled
+        /// When ColumnWidth is changed save it to the settings.
         /// </summary>
-        private void enableForwardBackButtons()
-        {
-            if (db.ParentGroup == 0)
-                backButton.Enabled = false;
-            else
-                backButton.Enabled = true;
-            if (groupListBox.Items.Count == 0)
-                forwardButton.Enabled = false;
-            else
-                forwardButton.Enabled = true;
-        }
-
-        private void formatColumns()
-        {
-            nodeListView.Columns.Clear();
-            
-            if (Properties.Settings.Default.NameColumnEnabled)
-                nodeListView.Columns.Add(Properties.Settings.Default.NameColumnLabel,
-                                         Properties.Settings.Default.NameColumnWidth);
-
-            if (Properties.Settings.Default.EpisodeNameColumnEnabled)
-                nodeListView.Columns.Add(Properties.Settings.Default.EpisodeNameColumnLabel,
-                                         Properties.Settings.Default.EpisodeNameColumnWidth);
-
-            if (Properties.Settings.Default.SeasonNumberColumnEnabled)
-                nodeListView.Columns.Add(Properties.Settings.Default.SeasonNumberColumnLabel,
-                                         Properties.Settings.Default.SeasonNumberColumnWidth);
-
-            if (Properties.Settings.Default.EpisodeNumberColumnEnabled)
-                nodeListView.Columns.Add(Properties.Settings.Default.EpisodeNumberColumnLabel,
-                                         Properties.Settings.Default.EpisodeNumberColumnWidth);
-
-            if (Properties.Settings.Default.VideoCodecColumnEnabled)
-                nodeListView.Columns.Add(Properties.Settings.Default.VideoCodecColumnLabel,
-                                         Properties.Settings.Default.VideoCodecColumnWidth);
-
-            if (Properties.Settings.Default.AudioCodecColumnEnabled)
-                nodeListView.Columns.Add(Properties.Settings.Default.AudioCodecColumnLabel,
-                                         Properties.Settings.Default.AudioCodecColumnWidth);
-
-            if (Properties.Settings.Default.ContainerColumnEnabled)
-                nodeListView.Columns.Add(Properties.Settings.Default.ContainerColumnLabel,
-                                         Properties.Settings.Default.ContainerColumnWidth);
-
-            if (Properties.Settings.Default.TimesPlayedColumnEnabled)
-                nodeListView.Columns.Add(Properties.Settings.Default.TimesPlayedColumnLabel,
-                                         Properties.Settings.Default.TimesPlayedColumnWidth);
-        }
-
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void nodeListView_ColumnWidthChanged(object sender,
                                                      ColumnWidthChangedEventArgs e)
         {
@@ -509,41 +682,12 @@ namespace AVM
             }
         }
 
-        private void nodeSearchAllCheckBox_CheckedChanged(object sender,
-                                                          EventArgs e)
-        {
-            if (nodeSearchTextBox.Text != "")
-            {
-                db.searchNodes(ref nodes,
-                               nodeSearchTextBox.Text,
-                               nodeSearchAllCheckBox.Checked);
-                groupTitleLabel.Text = "Search Results";
-                loadNodes();
-            }
-        }
-        private void nodeSearchTextBox_TextChanged(object sender,
-                                                   EventArgs e)
-        {
-            if (nodeSearchTextBox.Text != "")
-            {
-                db.searchNodes(ref nodes,
-                               nodeSearchTextBox.Text,
-                               nodeSearchAllCheckBox.Checked);
-                groupTitleLabel.Text = "Search Results";
-            }
-            else
-            {
-                db.refreshNodes(ref nodes);
-
-                if (db.CurrentGroup != 0)
-                    groupTitleLabel.Text = db.findBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
-                else
-                    groupTitleLabel.Text = "";
-            }
-
-            loadNodes();
-        }
-
+        /// <summary>
+        /// If DoublClickPlay is enabled then this will just play a video.
+        /// If not then it will just display a NodeViewer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void nodeListView_DoubleClick(object sender,
                                               EventArgs e)
         {
@@ -560,34 +704,11 @@ namespace AVM
                 }
         }
 
-        private void nodeBoxMenu_Opening(object sender,
-                                         CancelEventArgs e)
-        {
-            if (nodeListView.SelectedItems.Count > 0)
-            {
-                playNodeMenuItem.Enabled = true;
-                infoNodeMenuItem.Enabled = true;
-                editNodeMenuItem.Enabled = true;
-                deleteNodeMenuItem.Enabled = true;
-            }
-            else
-            {
-                playNodeMenuItem.Enabled = true;
-                infoNodeMenuItem.Enabled = true;
-                editNodeMenuItem.Enabled = true;
-                deleteNodeMenuItem.Enabled = true;
-            }
-        }
-
-        private void infoNodeMenuItem_Click(object sender, EventArgs e)
-        {
-            AVM.NodeViewer viewer = new AVM.NodeViewer(
-                    nodes[nodeListView.SelectedIndices[0]]);
-            viewer.ShowDialog();
-            if (viewer.Play)
-                playNodeMenuItem_Click(sender, e);
-        }
-
+        /// <summary>
+        /// This plays the selected node.
+        /// If it is an episode it will set it also as lastWatched.
+        /// Also refreshes nodes. (because of possible lastWatched change)
+        /// </summary>
         public void playSelectedNode()
         {
             if (nodeListView.SelectedIndices.Count > 0)
@@ -612,7 +733,7 @@ namespace AVM
                     {
                         // If set to use the WebPlayer use it else use default web browser
                         if ((Properties.Settings.Default.YouTubeWebPlayer == true) &&
-                            (nodes[nodeListView.SelectedIndices[0]].Embeded != null))
+                            (nodes[nodeListView.SelectedIndices[0]].embedded != null))
                         {
                             this.WindowState = FormWindowState.Minimized;
                             nodes[nodeListView.SelectedIndices[0]].Play();
@@ -629,7 +750,7 @@ namespace AVM
                     {
                         // If set to use the WebPlayer use it else use default web browser
                         if ((Properties.Settings.Default.HuluWebPlayer == true) &&
-                            (nodes[nodeListView.SelectedIndices[0]].Embeded != null))
+                            (nodes[nodeListView.SelectedIndices[0]].embedded != null))
                         {
                             this.WindowState = FormWindowState.Minimized;
                             nodes[nodeListView.SelectedIndices[0]].Play();
@@ -650,16 +771,35 @@ namespace AVM
                         System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(nodes[nodeListView.SelectedIndices[0]].File.Uri.LocalPath);
                         System.Diagnostics.Process tempPlayer;
                         tempPlayer = System.Diagnostics.Process.Start(psi);
-                        tempPlayer.WaitForExit();
+                        // Look into this a bit more as it makes teh minimize look odd
+                        // WMP doesn't do this right
+                        if (tempPlayer != null)
+                            tempPlayer.WaitForExit();
                     }
                     this.WindowState = FormWindowState.Normal;
                 }
-                db.refreshNodes(ref nodes);
-                loadNodes();
+
+                // If there is a search dont do a normal refresh.
+                if (nodeSearchTextBox.Text != "")
+                {
+                    db.refreshNodes(ref nodes);
+                    loadNodes();
+                }
+                else
+                    nodeSearchAllCheckBox_CheckedChanged(null, null);
             }
         }
 
-        private void nodeListView_KeyPress(object sender, KeyPressEventArgs e)
+        /// <summary>
+        /// This checks for the user pressing the backspace key when a node is selected.
+        /// If PromptOnDelete is enabled will prompt user with DeleteConfirmation otherwise
+        /// will just delete the video when backspace is pressed and BackspaceDelete is
+        /// enabled.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void nodeListView_KeyPress(object sender,
+                                           KeyPressEventArgs e)
         {
             if (Properties.Settings.Default.BackspaceDelete)
                 if ((e.KeyChar == '\b') && (nodeListView.SelectedItems.Count > 0))
@@ -687,5 +827,102 @@ namespace AVM
                     }
                 }
         }
+        #endregion
+
+        #region Misc Methods
+        /// <summary>
+        /// This creates the MainForm and also loads or creates the database.
+        /// Also refreshed both nodes and groups to their last selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainForm_Load(object sender,
+                                   EventArgs e)
+        {
+            if (Properties.Settings.Default.LastListView == null)
+                formatColumns();
+            else
+                nodeListView = Properties.Settings.Default.LastListView;
+
+            //db = new AVM.Database(System.IO.Directory.GetCurrentDirectory().ToString() + "\\VideoManager.db3");
+            // Create the folder if it doesn't exist since Installer wont.
+            if (!System.IO.Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AVM"))
+                System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AVM");
+            db = new AVM.Database(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\AVM\\VideoManager.db3");
+
+            db.ParentGroup = Properties.Settings.Default.LastParentGroup;
+            refreshGroups();
+
+            if (groupListBox.Items.Count > Properties.Settings.Default.LastSelectedIndex)
+                groupListBox.SelectedIndex = Properties.Settings.Default.LastSelectedIndex;
+            else
+                groupListBox.SelectedIndex = -1;
+
+            // See if a group is selected
+            if (db.CurrentGroup != 0)
+                groupTitleLabel.Text = db.findBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
+            else
+                groupTitleLabel.Text = "";
+
+            // Enable and disable buttons as needed
+            enableForwardBackButtons();
+        }
+
+        /// <summary>
+        /// Saves current settings and positions for group and nodes. Also kills
+        /// the database.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainForm_FormClosing(object sender,
+                                          FormClosingEventArgs e)
+        {
+            Properties.Settings.Default.LastListView = nodeListView;
+            Properties.Settings.Default.LastParentGroup = db.ParentGroup;
+            Properties.Settings.Default.LastSelectedIndex = groupListBox.SelectedIndex;
+            Properties.Settings.Default.Save();
+            db.Kill();
+        }
+
+        /// <summary>
+        /// This sets up all of the columnWidths and columnNames.
+        /// </summary>
+        private void formatColumns()
+        {
+            nodeListView.Columns.Clear();
+
+            if (Properties.Settings.Default.NameColumnEnabled)
+                nodeListView.Columns.Add(Properties.Settings.Default.NameColumnLabel,
+                                         Properties.Settings.Default.NameColumnWidth);
+
+            if (Properties.Settings.Default.EpisodeNameColumnEnabled)
+                nodeListView.Columns.Add(Properties.Settings.Default.EpisodeNameColumnLabel,
+                                         Properties.Settings.Default.EpisodeNameColumnWidth);
+
+            if (Properties.Settings.Default.SeasonNumberColumnEnabled)
+                nodeListView.Columns.Add(Properties.Settings.Default.SeasonNumberColumnLabel,
+                                         Properties.Settings.Default.SeasonNumberColumnWidth);
+
+            if (Properties.Settings.Default.EpisodeNumberColumnEnabled)
+                nodeListView.Columns.Add(Properties.Settings.Default.EpisodeNumberColumnLabel,
+                                         Properties.Settings.Default.EpisodeNumberColumnWidth);
+
+            if (Properties.Settings.Default.VideoCodecColumnEnabled)
+                nodeListView.Columns.Add(Properties.Settings.Default.VideoCodecColumnLabel,
+                                         Properties.Settings.Default.VideoCodecColumnWidth);
+
+            if (Properties.Settings.Default.AudioCodecColumnEnabled)
+                nodeListView.Columns.Add(Properties.Settings.Default.AudioCodecColumnLabel,
+                                         Properties.Settings.Default.AudioCodecColumnWidth);
+
+            if (Properties.Settings.Default.ContainerColumnEnabled)
+                nodeListView.Columns.Add(Properties.Settings.Default.ContainerColumnLabel,
+                                         Properties.Settings.Default.ContainerColumnWidth);
+
+            if (Properties.Settings.Default.TimesPlayedColumnEnabled)
+                nodeListView.Columns.Add(Properties.Settings.Default.TimesPlayedColumnLabel,
+                                         Properties.Settings.Default.TimesPlayedColumnWidth);
+        }
+        #endregion
     }
 }

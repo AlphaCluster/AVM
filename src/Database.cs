@@ -34,7 +34,6 @@ namespace AVM
     public class Database
     {
         private SQLiteConnection _database;
-        private string _databasePath;
         private long parentOfCurrentGroup = 0;
         private long currentGroup = 0;
 
@@ -116,7 +115,7 @@ namespace AVM
                     "watched INTEGER DEFAULT 0," + // number of times watched
                     "type INTEGER," +    // 0 means nothing 1:youtube 2: hulu
                     "url TEXT," +        // original url for hulu or youtube video
-                    "embeded TEXT," +    // embeded info for hulu or youtube
+                    "embedded TEXT," +    // embedded info for hulu or youtube
                     "comment TEXT," +    // stores the comment section for DVDs
                     "episode_number INTEGER," +
                     "season_number INTEGER," +
@@ -135,7 +134,6 @@ namespace AVM
             SQLiteConnectionStringBuilder dbBuilder = new SQLiteConnectionStringBuilder();
             dbBuilder.DataSource = databasePath;
             _database = new SQLiteConnection(dbBuilder.ConnectionString);
-            _databasePath = databasePath;
         }
         #endregion
 
@@ -144,8 +142,10 @@ namespace AVM
         /// Fills listBox with the group that is currently selected.
         /// </summary>
         /// <param name="listBox">ListBox to be filled with groups.</param>
-        public void refreshGroups(System.Windows.Forms.ListBox listBox)
+        public void refreshGroups(System.Windows.Forms.ListBox listBox,
+                                  ref List<AVM.Types.Group> groups)
         {
+            groups.Clear();
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
             listBox.Items.Clear();
@@ -162,6 +162,7 @@ namespace AVM
                                                 reader.GetInt64(1),
                                                 parentOfCurrentGroup);
                     listBox.Items.Add(tempGroup);
+                    groups.Add(tempGroup);
                 }
             trans.Rollback();
             _database.Close();
@@ -373,7 +374,6 @@ namespace AVM
                             " AND group_id > 0;",
                             _database, trans);
             SQLiteDataReader reader = command.ExecuteReader();
-            List<AVM.Types.Group> groupList = new List<AVM.Types.Group>();
             if (reader.HasRows)
                 while (reader.Read())
                 {
@@ -426,7 +426,12 @@ namespace AVM
                 _database, trans);
             SQLiteDataReader reader = command.ExecuteReader();
             reader.Read();
-            last_id = reader.GetInt64(0);
+
+            // If there is nothing in groups yet use default.
+            if (reader.IsDBNull(0))
+                last_id = 0;
+            else
+                last_id = reader.GetInt64(0);
             _database.Close();
 
             return last_id;
@@ -479,9 +484,9 @@ namespace AVM
                     {
                         tempNode.Url = reader.GetString(4);
                         if (reader.IsDBNull(5))
-                            tempNode.Embeded = null;
+                            tempNode.embedded = null;
                         else
-                            tempNode.Embeded = reader.GetString(5);
+                            tempNode.embedded = reader.GetString(5);
                     }
 
                     if (!reader.IsDBNull(6))
@@ -510,6 +515,7 @@ namespace AVM
                         if (!reader.IsDBNull(14))
                             tempNode.File.Container = reader.GetString(14);
                     }
+                    tempNode.ParentId = reader.GetInt64(15);
                     list.Add(tempNode);
                 }
             trans.Rollback();
@@ -546,9 +552,9 @@ namespace AVM
                     {
                         tempNode.Url = reader.GetString(4);
                         if (reader.IsDBNull(5))
-                            tempNode.Embeded = null;
+                            tempNode.embedded = null;
                         else
-                            tempNode.Embeded = reader.GetString(5);
+                            tempNode.embedded = reader.GetString(5);
                     }
 
                     if (!reader.IsDBNull(6))
@@ -625,8 +631,8 @@ namespace AVM
             foreach (AVM.Types.Node node in nodes)
             {
                 // Create strings to make the data adapter
-                string identifiers = "name, node_id, parent_group_id, type, url, embeded, comment";
-                string data = "@name, @node_id, @parent_group_id, @type, @url, @embeded, @comment";
+                string identifiers = "name, node_id, parent_group_id, type, url, embedded, comment";
+                string data = "@name, @node_id, @parent_group_id, @type, @url, @embedded, @comment";
                 if (node.IsFile)
                 {
                     identifiers += ", uri, video_encoding, audio_encoding, container";
@@ -651,7 +657,7 @@ namespace AVM
                 adapter.InsertCommand.Parameters.AddWithValue("@parent_group_id", node.ParentId);
                 adapter.InsertCommand.Parameters.AddWithValue("@type", node.UrlType);
                 adapter.InsertCommand.Parameters.AddWithValue("@url", node.Url);
-                adapter.InsertCommand.Parameters.AddWithValue("@embeded", node.Embeded);
+                adapter.InsertCommand.Parameters.AddWithValue("@embedded", node.embedded);
                 adapter.InsertCommand.Parameters.AddWithValue("@comment", node.Comment);
                 if (node.IsFile)
                 {
@@ -687,8 +693,8 @@ namespace AVM
             SQLiteTransaction trans = _database.BeginTransaction();
             
             // Create strings to make the data adapter.
-            string identifiers = "name, parent_group_id, type, url, embeded, comment";
-            string data = "@name, @parent_group_id, @type, @url, @embeded, @comment";
+            string identifiers = "name, parent_group_id, type, url, embedded, comment";
+            string data = "@name, @parent_group_id, @type, @url, @embedded, @comment";
             if (node.IsFile)
             {
                 identifiers += ", uri, video_encoding, audio_encoding, container";
@@ -712,7 +718,7 @@ namespace AVM
             adapter.InsertCommand.Parameters.AddWithValue("@parent_group_id", currentGroup);
             adapter.InsertCommand.Parameters.AddWithValue("@type", node.UrlType);
             adapter.InsertCommand.Parameters.AddWithValue("@url", node.Url);
-            adapter.InsertCommand.Parameters.AddWithValue("@embeded", node.Embeded);
+            adapter.InsertCommand.Parameters.AddWithValue("@embedded", node.embedded);
             adapter.InsertCommand.Parameters.AddWithValue("@comment", node.Comment);
             // If file populate the SQLiteDataAdapter with file data.
             if (node.IsFile)
@@ -752,7 +758,7 @@ namespace AVM
             string updateString = "name = @name" +
                                   ", type = @type" +
                                   ", url = @url" +
-                                  ", embeded = @embeded" +
+                                  ", embedded = @embedded" +
                                   ", comment = @comment";
             if (node.IsFile)
             {
@@ -780,7 +786,7 @@ namespace AVM
             adapter.UpdateCommand.Parameters.AddWithValue("@name", node.Name);
             adapter.UpdateCommand.Parameters.AddWithValue("@type", node.UrlType);
             adapter.UpdateCommand.Parameters.AddWithValue("@url", node.Url);
-            adapter.UpdateCommand.Parameters.AddWithValue("@embeded", node.Embeded);
+            adapter.UpdateCommand.Parameters.AddWithValue("@embedded", node.embedded);
             adapter.UpdateCommand.Parameters.AddWithValue("@comment", node.Comment);
             // If file populate the SQLiteDataAdapter with file data.
             if (node.IsFile)
@@ -888,9 +894,9 @@ namespace AVM
                     {
                         tempNode.Url = reader.GetString(4);
                         if (reader.IsDBNull(5))
-                            tempNode.Embeded = null;
+                            tempNode.embedded = null;
                         else
-                            tempNode.Embeded = reader.GetString(5);
+                            tempNode.embedded = reader.GetString(5);
                     }
 
                     if (!reader.IsDBNull(6))

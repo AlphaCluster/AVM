@@ -1,6 +1,6 @@
 ﻿namespace AVM
 {
-    partial class mainForm
+    partial class MainForm
     {
         /// <summary>
         /// Required designer variable.
@@ -489,16 +489,16 @@
             this.button.TabIndex = 3;
             this.button.UseVisualStyleBackColor = true;
             // 
-            // mainForm
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(681, 432);
             this.Controls.Add(this.mainSplitContainer);
-            this.Name = "mainForm";
+            this.Name = "MainForm";
             this.Text = "A Video Manager";
-            this.Load += new System.EventHandler(this.mainForm_Load);
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.mainForm_FormClosing);
+            this.Load += new System.EventHandler(this.MainForm_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.mainSplitContainer.Panel1.ResumeLayout(false);
             this.mainSplitContainer.Panel2.ResumeLayout(false);
             this.mainSplitContainer.ResumeLayout(false);

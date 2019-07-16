@@ -38,9 +38,70 @@ namespace AVM.Parsers
         private string _episodeTitle = null;
         private int _episodeNumber = -1;
         private int _seasonNumber = -1;
-        private string _embeded = null;
+        private string _embedded = null;
         private string _videoType = null; // movie, video, tv, hd, excerpt
 
+        #region Properties
+        /// <summary>
+        /// This is the title for the Hulu video.
+        /// </summary>
+        public string Title
+        {
+            get { return _title; }
+        }
+
+        /// <summary>
+        /// This is the episode title for the Hulu video.
+        /// </summary>
+        public string EpisodeTitle
+        {
+            get
+            {
+                if (_episodeTitle == null)
+                    return "";
+                else
+                    return _episodeTitle;
+            }
+        }
+
+        /// <summary>
+        /// This is the episode number for the Hulu video.
+        /// </summary>
+        public int EpisodeNumber
+        {
+            get { return _episodeNumber; }
+        }
+
+        /// <summary>
+        /// This is the season number for the Hulu video.
+        /// </summary>
+        public int SeasonNumber
+        {
+            get { return _seasonNumber; }
+        }
+
+        /// <summary>
+        /// This is the embedded string for the Hulu video.
+        /// </summary>
+        public string Embedded
+        {
+            get { return _embedded; }
+        }
+
+        /// <summary>
+        /// This is the url to the Hulu video.
+        /// </summary>
+        public string Url
+        {
+            get { return link.OriginalString; }
+        }
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// This creates a HuluParser with the url that is to be parsed.
+        /// </summary>
+        /// <param name="input">Url that is to be parse.</param>
         public HuluParser(string input)
         {
             if (Uri.IsWellFormedUriString(input, UriKind.Absolute))
@@ -48,7 +109,14 @@ namespace AVM.Parsers
             else
                 link = null;
         }
+        #endregion
 
+        #region Methods
+        /// <summary>
+        /// Runs the parser on the url that it was created with.
+        /// Returns false if parse fails.
+        /// </summary>
+        /// <returns>Returns true if it parses successfully.</returns>
         public bool parse()
         {
             if (link != null)
@@ -139,7 +207,7 @@ namespace AVM.Parsers
                                 "Warning",
                                 System.Windows.Forms.MessageBoxButtons.OK,
                                 System.Windows.Forms.MessageBoxIcon.Exclamation);
-                        
+
                         // get episode number
                         index = disc.IndexOf("Ep. ");
                         string holderEpisodeNumber = disc.Substring(index + 4);
@@ -164,9 +232,9 @@ namespace AVM.Parsers
                 index = doc.IndexOf("<link rel=\"video_src\" href=\"");
                 if (index > -1) // if not embedable temp will be null
                 {
-                    _embeded = doc.Substring(index + 28);
-                    index = _embeded.IndexOf("\" />");
-                    _embeded = _embeded.Substring(0, index);
+                    _embedded = doc.Substring(index + 28);
+                    index = _embedded.IndexOf("\" />");
+                    _embedded = _embedded.Substring(0, index);
                 }
             }
             else
@@ -174,41 +242,6 @@ namespace AVM.Parsers
 
             return true;
         }
-
-        public string Title
-        {
-            get { return _title; }
-        }
-
-        public string EpisodeTitle
-        {
-            get
-            {
-                if (_episodeTitle == null)
-                    return "";
-                else
-                    return _episodeTitle;
-            }
-        }
-
-        public int EpisodeNumber
-        {
-            get { return _episodeNumber; }
-        }
-
-        public int SeasonNumber
-        {
-            get { return _seasonNumber; }
-        }
-
-        public string Embeded
-        {
-            get { return _embeded; }
-        }
-
-        public string Url
-        {
-            get { return link.OriginalString; }
-        }
+        #endregion
     }
 }

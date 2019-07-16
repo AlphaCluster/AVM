@@ -37,18 +37,49 @@ namespace AVM
     public partial class Importer : Form
     {
         public Database db;
-        public mainForm main;
+        public MainForm main;
         public int currentSelected = 1;
+        private bool _backupTookPlace = false;
 
-        public Importer(mainForm VideoManager, Database database, int selectedGroup)
+        #region Properties
+        /// <summary>
+        /// Tells if a backup has taken place.
+        /// If it has actions need to be taken to make the main window correct.
+        /// </summary>
+        public bool BackupTookPlace
+        {
+            get { return _backupTookPlace; }
+        }
+        #endregion
+
+        #region Constructors
+        /// <summary>
+        /// Creates an Importer form passing the mainform, database and currently
+        /// selected group.
+        /// </summary>
+        /// <param name="avm">The mainFrom for the program.</param>
+        /// <param name="database">This is the main database.</param>
+        /// <param name="selectedGroup">This is the currently selected group.</param>
+        public Importer(MainForm avm,
+                        Database database,
+                        int selectedGroup)
         {
             InitializeComponent();
             db = database;
-            main = VideoManager;
+            main = avm;
             currentSelected = selectedGroup;
         }
+        #endregion
 
-        private void Importer_Load(object sender, EventArgs e)
+        #region Misc Methods
+        /// <summary>
+        /// Runs on load. Populates comboBox on the folder tab and populates the
+        /// patternTextBox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Importer_Load(object sender,
+                                   EventArgs e)
         {
             db.refreshComboBoxGroups(groupComboBox);
             groupComboBox.SelectedIndex = currentSelected;
@@ -56,8 +87,17 @@ namespace AVM
                 groupBackButton.Enabled = false;
             folderPatternTextBox.Text = Properties.Settings.Default.FileNamePattern;
         }
+        #endregion
 
-        private void groupForwardButton_Click(object sender, EventArgs e)
+        #region Group Methods
+        /// <summary>
+        /// This Method makes moves the comboBox forward in the groups list based
+        /// off the currently selected group in the ComboBox.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void groupForwardButton_Click(object sender,
+                                              EventArgs e)
         {
             db.ParentGroup = ((AVM.Types.Group)groupComboBox.SelectedItem).Id;
             groupComboBox.SelectedIndex = -1; // So it doesn't break
@@ -66,7 +106,13 @@ namespace AVM
                 groupComboBox.SelectedIndex = 1;
         }
 
-        private void groupBackButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// This Method makes moves the comboBox back in the groups list.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void groupBackButton_Click(object sender,
+                                           EventArgs e)
         {
             if (((AVM.Types.Group)groupComboBox.SelectedItem).ParentId != 0)
             {
@@ -78,44 +124,88 @@ namespace AVM
                 groupComboBox.SelectedIndex = 1;
             }
         }
+        #endregion
 
-        private void backupBrowseButton_Click(object sender, EventArgs e)
+        #region Backup Methods
+        /// <summary>
+        /// This opens up the openFileDialog so that the backup xml file can be selected
+        /// to restore data from.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backupBrowseButton_Click(object sender,
+                                              EventArgs e)
         {
             backupOpenFileDialog.ShowDialog();
             backupFileTextBox.Text = backupOpenFileDialog.FileName;
         }
 
-        private void topTextBox_TextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Enables and disables the backupAddButton based on if there is
+        /// currently a file selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void topTextBox_TextChanged(object sender,
+                                            EventArgs e)
         {
             if (backupFileTextBox.Text == "")
-                backupCancelButton.Enabled = false;
+                backupAddButton.Enabled = false;
             else
-                backupCancelButton.Enabled = true;
+                backupAddButton.Enabled = true;
         }
 
-        private void backupAddButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Runs the backup xml parser and restores the database from it.
+        /// Also refreshes the group list.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backupAddButton_Click(object sender,
+                                           EventArgs e)
         {
             if (backupFileTextBox.Text != "")
             {
                 AVM.Parsers.BackupParser parser = new AVM.Parsers.BackupParser(db);
                 parser.ReadXmlBackup(backupFileTextBox.Text);
-                main.refreshGroups();
+                _backupTookPlace = true;
                 this.Close();
             }
         }
 
-        private void backupCancelButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// This method just closes the form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void backupCancelButton_Click(object sender,
+                                              EventArgs e)
         {
             this.Close();
         }
+        #endregion
 
-        private void folderBrowseButton_Click(object sender, EventArgs e)
+        #region Folder Methods
+        /// <summary>
+        /// Displays the folderBrowserDialog and selects the folder to be added.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void folderBrowseButton_Click(object sender,
+                                              EventArgs e)
         {
             folderBrowserDialog.ShowDialog();
             folderFileTextBox.Text = folderBrowserDialog.SelectedPath;
         }
 
-        private void folderAddButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Runs the FolderParser based on the selected folder and refreshes
+        /// the group list.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void folderAddButton_Click(object sender,
+                                           EventArgs e)
         {
             if (folderFileTextBox.Text != "")
             {
@@ -130,9 +220,31 @@ namespace AVM
             }
         }
 
-        private void folderCancelButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Enables and disables the folderAddButton based on if there is
+        /// currently a folder selected.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void folderFileTextBox_TextChanged(object sender,
+                                                   EventArgs e)
+        {
+            if (folderFileTextBox.Text == "")
+                folderAddButton.Enabled = false;
+            else
+                folderAddButton.Enabled = true;
+        }
+
+        /// <summary>
+        /// Closes the form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void folderCancelButton_Click(object sender,
+                                              EventArgs e)
         {
             this.Close();
         }
+        #endregion
     }
 }

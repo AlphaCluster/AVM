@@ -43,7 +43,34 @@ namespace AVM
         private bool _success = false;
         private AVM.Types.Node _node = new AVM.Types.Node();
 
-        public NodeEditor(string title, AVM.Types.Node node)
+        #region Properties
+        /// <summary>
+        /// Returns true if the information in NodeEditor is supposed to be used
+        /// to populate/update the database. If false do nothing with it.
+        /// </summary>
+        public bool Successful
+        {
+            get { return _success; }
+        }
+
+        /// <summary>
+        /// Returns the Node with the edited or new data in it.
+        /// </summary>
+        public AVM.Types.Node Node
+        {
+            get { return _node; }
+        }
+        #endregion
+
+        #region Constructors
+        /// <summary>
+        /// This constructor populates the editor with data if a node is provided.
+        /// Also changes the text on buttons based on if the title is "new" or not.
+        /// </summary>
+        /// <param name="title">The title of the form. "New" means your adding a new node.</param>
+        /// <param name="node">The node to populate the editor weith. Null means new node.</param>
+        public NodeEditor(string title,
+                          AVM.Types.Node node)
         {
             InitializeComponent();
             this.Text = title;
@@ -153,21 +180,17 @@ namespace AVM
             fileContainerComboBox.Items.Add("wmv");
             #endregion
         }
-
-        #region Properties
-        public bool Successful
-        {
-            get { return _success; }
-        }
-
-        public AVM.Types.Node Node
-        {
-            get { return _node; }
-        }
         #endregion
 
         #region File Functions
-        private void fileBrowseButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// This shows the file selection dialog in order to prompt the user for the file
+        /// they want to add.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fileBrowseButton_Click(object sender,
+                                            EventArgs e)
         {
             openFileDialog.Filter = VIDEO_FILTER;
             bool first_time = fileFileTextBox.Text == "" ? true : false;
@@ -197,30 +220,55 @@ namespace AVM
             }
         }
 
-        private void fileVideoCodecComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Stores the new Video Encoding in the new node and propagates it to all tabs.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fileVideoCodecComboBox_SelectedIndexChanged(object sender,
+                                                                 EventArgs e)
         {
             _node.File.Video_Encoding = fileVideoCodecComboBox.Text;
         }
 
-        private void fileAudioCodecComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Stores the new Audio Encoding in the new node and propagates it to all tabs.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fileAudioCodecComboBox_SelectedIndexChanged(object sender,
+                                                                 EventArgs e)
         {
             _node.File.Audio_Encoding = fileAudioCodecComboBox.Text;
         }
 
-        private void fileContainerComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Stores the new Container in the new node and propagates it to all tabs.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void fileContainerComboBox_SelectedIndexChanged(object sender,
+                                                                EventArgs e)
         {
             _node.File.Container = fileContainerComboBox.Text;
         }
         #endregion
 
         #region YouTube Functions
-        private void youTubeLinkButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Parses the YouTube link in the YouTube textbox.
+        /// If valid displays GOOD else displays BAD.
+        /// Also if valid will enable the Add buttons.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void youTubeLinkButton_Click(object sender,
+                                             EventArgs e)
         {
             fileAddButton.Enabled = true;
             youTubeAddButton.Enabled = true;
             huluAddButton.Enabled = true;
             dvdAddButton.Enabled = true;
-            // TODO: Check what data is saved when this is run but never tested good
             if (youTubeLinkTextBox.Text != "")
             {
                 AVM.Parsers.YouTubeParser parser;
@@ -234,7 +282,7 @@ namespace AVM
                     fileNameTextBox.Text = parser.Title;
                     _node = new AVM.Types.Node();
                     _node.Name = youTubeNameTextBox.Text;
-                    _node.YouTube = parser.Embeded;
+                    _node.YouTube = parser.Embedded;
                     _node.Url = parser.Url;
                 }
                 else
@@ -246,7 +294,15 @@ namespace AVM
             }
         }
 
-        private void youTubeLinkTextBox_TextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Run when user changes the YouTube link.
+        /// Changes the test label to Test.
+        /// Also disables the Add buttons.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void youTubeLinkTextBox_TextChanged(object sender,
+                                                    EventArgs e)
         {
             youTubeStatusLabel.ForeColor = Color.Red;
             youTubeStatusLabel.Text = "Test";
@@ -258,7 +314,15 @@ namespace AVM
         #endregion
 
         #region Hulu Functions
-        private void huluLinkButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Parses the YouTube link in the Hulu textbox.
+        /// If valid displays GOOD else displays BAD.
+        /// Also if valid will enable the Add buttons.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void huluLinkButton_Click(object sender,
+                                          EventArgs e)
         {
             fileAddButton.Enabled = true;
             youTubeAddButton.Enabled = true;
@@ -276,7 +340,7 @@ namespace AVM
                     huluStatusLabel.Text = "GOOD";
                     _node = new AVM.Types.Node();
                     _node.Name = youTubeNameTextBox.Text;
-                    _node.Hulu = parser.Embeded;
+                    _node.Hulu = parser.Embedded;
                     _node.Url = parser.Url;
                     updateNodeName(parser.Title);
                     if (parser.EpisodeTitle != "")
@@ -292,7 +356,15 @@ namespace AVM
             }
         }
         
-        private void huluLinkTextBox_TextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Run when user changes the Hulu link.
+        /// Changes the test label to Test.
+        /// Also disables the Add buttons.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void huluLinkTextBox_TextChanged(object sender,
+                                                 EventArgs e)
         {
             huluStatusLabel.ForeColor = Color.Red;
             huluStatusLabel.Text = "Test";
@@ -307,7 +379,7 @@ namespace AVM
         /// <summary>
         /// Updates the NodeName and every textbox that is related to it.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The new name taht is going to be updated.</param>
         private void updateNodeName(string name)
         {
             fileNameTextBox.Text = name;
@@ -317,6 +389,10 @@ namespace AVM
             _node.Name = name;
         }
 
+        /// <summary>
+        /// Updates the EpisodeName and every textbox that is related to it.
+        /// </summary>
+        /// <param name="name">The new Episode Name that is going to be updated.</param>
         private void updateEpisodeName(string name)
         {
             fileEpisodeNameTextBox.Text = name;
@@ -327,6 +403,10 @@ namespace AVM
             _node.Episode.EpisodeName = name;
         }
 
+        /// <summary>
+        /// Update the LastWatched status and every checkbox related to it.
+        /// </summary>
+        /// <param name="value">Boolean value representing if it was the last watched episode.</param>
         private void updateLastWatched(bool value)
         {
             fileLastWatchedCheckBox.Checked = value;
@@ -337,6 +417,10 @@ namespace AVM
             _node.Episode.LastWatched = value;
         }
 
+        /// <summary>
+        /// Update the EpisodeNumber and every textbox related to it.
+        /// </summary>
+        /// <param name="value">The new Episode Number that is going to be updated.</param>
         private void updateEpisodeNumber(int value)
         {
             if (value != -1)
@@ -356,6 +440,10 @@ namespace AVM
             _node.Episode.EpisodeNumber = value;
         }
 
+        /// <summary>
+        /// Update the SeasonNumber and every textbox related to it.
+        /// </summary>
+        /// <param name="value">The new Season Number that is going to be updated.</param>
         private void updateSeasonNumber(int value)
         {
             if (value != -1)
@@ -376,8 +464,14 @@ namespace AVM
         }
         #endregion
         
-        #region General TextChanged Functions
-        private void episodeOrSeasonNumber_TextChanged(object sender, EventArgs e)
+        #region General Field Functions
+        /// <summary>
+        /// Updates either the season or the episode depending on which textbox was changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void episodeOrSeasonNumber_TextChanged(object sender,
+                                                       EventArgs e)
         {
             TextBox source = (TextBox)sender;
 
@@ -421,50 +515,87 @@ namespace AVM
                     MessageBox.Show("Warning: Please enter an integer!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
         
-        private void name_TextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Runs updateNodeName when a textbox related to the name is changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void name_TextChanged(object sender,
+                                      EventArgs e)
         {
             updateNodeName(((TextBox)sender).Text);
         }
 
-        private void episodeName_TextChanged(object sender, EventArgs e)
+        /// <summary>
+        /// Runs updateEpisodeName when a textbox related to the name is changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void episodeName_TextChanged(object sender,
+                                             EventArgs e)
         {
             updateEpisodeName(((TextBox)sender).Text);
         }
+
+        /// <summary>
+        /// Updates the comment in the node when the comment textbox was changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void dvdCommentsTextBox_TextChanged(object sender,
+                                                    EventArgs e)
+        {
+            _node.Comment = dvdCommentsTextBox.Text;
+        }
+
+        /// <summary>
+        /// Runs the updateLastWatched when a checkbox related to it is changed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void lastWatched_CheckedChanged(object sender,
+                                                EventArgs e)
+        {
+            updateLastWatched(((CheckBox)sender).Checked);
+        }
         #endregion
 
-        #region General Button_Click Functions
-        private void playButton_Click(object sender, EventArgs e)
+        #region General Button Functions
+        /// <summary>
+        /// Play the web video to test the link.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void playButton_Click(object sender,
+                                      EventArgs e)
         {
             _node.Play();
         }
 
-        private void addButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Mark as success and close form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void addButton_Click(object sender,
+                                     EventArgs e)
         {
-            // Make sure all changes are in _node
-
-
             // finalize the successful changes
             _success = true;
             this.Close();
         }
 
-        private void cancelButton_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Mark success as false and close form.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cancelButton_Click(object sender,
+                                        EventArgs e)
         {
             _success = false;
             this.Close();
         }
         #endregion
-
-        private void lastWatched_CheckedChanged(object sender, EventArgs e)
-        {
-            updateLastWatched(((CheckBox)sender).Checked);
-        }
-
-        private void dvdCommentsTextBox_TextChanged(object sender, EventArgs e)
-        {
-            _node.Comment = dvdCommentsTextBox.Text;
-        }
-
-        
     }
 }

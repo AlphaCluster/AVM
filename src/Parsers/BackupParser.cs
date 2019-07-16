@@ -36,12 +36,22 @@ namespace AVM.Parsers
     {
         private Database _db;
 
+        #region Constructor
+        /// <summary>
+        /// Creates a basic parser with a database if needed.
+        /// </summary>
+        /// <param name="db"></param>
         public BackupParser(Database db)
         {
             _db = db;
         }
+        #endregion
 
         #region Writing Backup
+        /// <summary>
+        /// Writes an xml backup to the file passed in.
+        /// </summary>
+        /// <param name="file">File where you want to save the xml backup to.</param>
         public void WriteXmlBackup(string file)
         {
             XmlTextWriter xmlWriter = new XmlTextWriter(file, Encoding.UTF8);
@@ -64,6 +74,10 @@ namespace AVM.Parsers
             xmlWriter.Close();
         }
 
+        /// <summary>
+        /// Writes all the nodes to the xmlWriter.
+        /// </summary>
+        /// <param name="xmlWriter">The writer for the xml backup.</param>
         private void writeNodes(XmlTextWriter xmlWriter)
         {
             List<AVM.Types.Node> list = _db.getAllNodes();
@@ -72,10 +86,17 @@ namespace AVM.Parsers
                 writeNode(node, xmlWriter);
         }
 
-        private void writeNode(AVM.Types.Node node, XmlTextWriter xmlWriter)
+        /// <summary>
+        /// Writes out an individual node to the xmlWriter.
+        /// </summary>
+        /// <param name="node">The node which is to be written.</param>
+        /// <param name="xmlWriter">The writer for the xml backup.</param>
+        private void writeNode(AVM.Types.Node node,
+                               XmlTextWriter xmlWriter)
         {
             xmlWriter.WriteStartElement("node");
             xmlWriter.WriteAttributeString("id", node.Id.ToString());
+            xmlWriter.WriteAttributeString("parent_id", node.ParentId.ToString());
             xmlWriter.WriteAttributeString("name", node.Name);
             xmlWriter.WriteStartElement("url");
             xmlWriter.WriteAttributeString("type", node.UrlType.ToString());
@@ -85,7 +106,7 @@ namespace AVM.Parsers
             // part of the url and placeing it in http://www.youtube.com/v/HERE&hl=en&fs=1
             // this should be looked into to save space since its taking up over 50% of a \
             // node in xml currently problem is hulu
-            xmlWriter.WriteElementString("embeded", node.Embeded);
+            xmlWriter.WriteElementString("embedded", node.embedded);
             xmlWriter.WriteElementString("comment", node.Comment);
 
             // If its an episode write the Episode element
@@ -116,6 +137,10 @@ namespace AVM.Parsers
             xmlWriter.WriteEndElement();
         }
 
+        /// <summary>
+        /// Writes all the groups to the xmlWriter.
+        /// </summary>
+        /// <param name="xmlWriter">The writer for the xml backup.</param>
         private void writeGroups(XmlTextWriter xmlWriter)
         {
             List<AVM.Types.Group> groups = _db.getAllGroups();
@@ -124,6 +149,11 @@ namespace AVM.Parsers
                 writeGroup(group, xmlWriter);
         }
 
+        /// <summary>
+        /// Writes out an individual group to xmlWriter.
+        /// </summary>
+        /// <param name="group">The group which is to be written.</param>
+        /// <param name="xmlWriter">The writer for the xml backup.</param>
         private void writeGroup(AVM.Types.Group group, XmlTextWriter xmlWriter)
         {
             xmlWriter.WriteStartElement("group");
@@ -135,26 +165,32 @@ namespace AVM.Parsers
         #endregion
 
         #region Reading Backup
-        public string ReadXmlBackup(string file)
+        /// <summary>
+        /// Reads an xml backup from the file passed in.
+        /// </summary>
+        /// <param name="file">File where you want to read the xml backup from.</param>
+        public void ReadXmlBackup(string file)
         {
             _db.Clear();
 
             XmlTextReader xmlReader = new XmlTextReader(file);
-            string debug = "";
             xmlReader.Read();
             xmlReader.ReadStartElement("backup");
             xmlReader.ReadStartElement("nodes");
-            readNodes(xmlReader, debug);
+            readNodes(xmlReader);
             xmlReader.ReadEndElement();
             xmlReader.ReadStartElement("groups");
             readGroups(xmlReader);
             xmlReader.ReadEndElement();
             xmlReader.ReadEndElement();
             xmlReader.Close();
-            return debug;
         }
 
-        private void readNodes(XmlTextReader xmlReader, string debug)
+        /// <summary>
+        /// Reads all the nodes from the xmlReader and adds them to the database.
+        /// </summary>
+        /// <param name="xmlReader">The reader for the xml backup.</param>
+        private void readNodes(XmlTextReader xmlReader)
         {
             List<AVM.Types.Node> nodes = new List<AVM.Types.Node>();
 
@@ -166,12 +202,18 @@ namespace AVM.Parsers
             _db.fillNodes(nodes);
         }
 
+        /// <summary>
+        /// Reads in an individual node from the xmlReader and returns a node.
+        /// </summary>
+        /// <param name="xmlReader">The reader for the xml backup.</param>
+        /// <returns>The node that was read in.</returns>
         private AVM.Types.Node readNode(XmlTextReader xmlReader)
         {
             AVM.Types.Node node = new AVM.Types.Node();
 
             node.Id = Int64.Parse(xmlReader[0]);
-            node.Name = xmlReader[1];
+            node.ParentId = Int64.Parse(xmlReader[1]);
+            node.Name = xmlReader[2];
 
             xmlReader.ReadToDescendant("url");
             
@@ -183,7 +225,7 @@ namespace AVM.Parsers
                 xmlReader.ReadEndElement();
             }
 
-            node.Embeded = xmlReader.ReadElementString("embeded");
+            node.embedded = xmlReader.ReadElementString("embedded");
             node.Comment = xmlReader.ReadElementString("comment");
 
             // if it has attributes read it
@@ -214,6 +256,10 @@ namespace AVM.Parsers
             return node;
         }
 
+        /// <summary>
+        /// Reads all the groups from the xmlReader and adds them to the database.
+        /// </summary>
+        /// <param name="xmlReader">The reader for the xml backup.</param>
         private void readGroups(XmlTextReader xmlReader)
         {
             List<AVM.Types.Group> groups = new List<AVM.Types.Group>();
@@ -226,6 +272,11 @@ namespace AVM.Parsers
             _db.fillGroups(groups);
         }
 
+        /// <summary>
+        /// Reads in an individual group from the xmlReader and returns a group.
+        /// </summary>
+        /// <param name="xmlReader">The reader for the xml backup.</param>
+        /// <returns>The group that was read in.</returns>
         private AVM.Types.Group readGroup(XmlTextReader xmlReader)
         {
             AVM.Types.Group group = new AVM.Types.Group();

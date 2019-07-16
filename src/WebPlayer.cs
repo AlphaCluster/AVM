@@ -36,61 +36,79 @@ namespace AVM
     public partial class WebPlayer : Form
     {
         private bool _youTube = false;
-        private string original_embeded;
+        private string original_embedded;
 
-        public WebPlayer()
-        {
-            InitializeComponent();
-        }
-
+        #region Properties
+        /// <summary>
+        /// Returns the title of the form.
+        /// </summary>
         public string Title
         {
             get { return this.Title; }
             set { this.Text = value; }
         }
+        #endregion
 
-        public void PlayYouTube(string embeded)
+        #region Constructor
+        /// <summary>
+        /// Makes a new WebPlayer nothing fancy here.
+        /// </summary>
+        public WebPlayer()
+        {
+            InitializeComponent();
+        }
+        #endregion
+
+        #region Methods
+        /// <summary>
+        /// Plays a YouTube video using hte embedded string.
+        /// </summary>
+        /// <param name="embedded">The YouTube embedded string.</param>
+        public void PlayYouTube(string embedded)
         {
             _youTube = true;
-            original_embeded = embeded;
-            embeded = embeded.Replace("WIDTH", videoWebBrowser.Width.ToString());
-            embeded = embeded.Replace("HEIGHT", videoWebBrowser.Height.ToString());
-            videoWebBrowser.DocumentText = "<body style=\"margin:0px\">" + embeded + "</body>";
+            original_embedded = embedded;
+            embedded = embedded.Replace("WIDTH", videoWebBrowser.Width.ToString());
+            embedded = embedded.Replace("HEIGHT", videoWebBrowser.Height.ToString());
+            videoWebBrowser.DocumentText = "<body style=\"margin:0px\">" + embedded + "</body>";
         }
 
+        /// <summary>
+        /// Plays a Hulu video by using the embedded url.
+        /// </summary>
+        /// <param name="url">embedded url to play video via.</param>
         public void PlayHulu(string url)
         {
             // TODO get this working since its for some reason gives scripting errors?
             videoWebBrowser.Url = new Uri(url);
         }
 
-        private void WebPlayer_Resize(object sender, EventArgs e)
+        /// <summary>
+        /// When a YouTube video is playing refresh the YouTube video to the new size.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void WebPlayer_Resize(object sender,
+                                      EventArgs e)
         {
             if (_youTube)
             {
-                string embeded = original_embeded;
-                embeded = embeded.Replace("WIDTH", videoWebBrowser.Width.ToString());
-                embeded = embeded.Replace("HEIGHT", videoWebBrowser.Height.ToString());
-                videoWebBrowser.DocumentText = "<body style=\"margin:0px\">" + embeded + "</body>";
+                string embedded = original_embedded;
+                embedded = embedded.Replace("WIDTH", videoWebBrowser.Width.ToString());
+                embedded = embedded.Replace("HEIGHT", videoWebBrowser.Height.ToString());
+                videoWebBrowser.DocumentText = "<body style=\"margin:0px\">" + embedded + "</body>";
             }
         }
 
-        private void videoWebBrowser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
-        {
-            //if (_youTube)
-            //{
-            //    Video_Manager.Parsers.YouTubeParser parser =
-            //            new Video_Manager.Parsers.YouTubeParser(videoWebBrowser.Url.ToString());
-            //    parser.parse();
-            //    Text = parser.Title;
-            //    PlayYouTube(Video_Manager.Node.YOUTUBE_EMBEDED_BASE.Replace("LINK", parser.Embeded));
-            //    videoWebBrowser
-            //}
-        }
-
+        /// <summary>
+        /// Prevent errors from showing up when the form is closed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void WebPlayer_FormClosing(object sender, FormClosingEventArgs e)
         {
             videoWebBrowser.ScriptErrorsSuppressed = true;
         }
+        #endregion
     }
 }

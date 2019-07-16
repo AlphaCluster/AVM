@@ -32,48 +32,83 @@ namespace AVM.Types
         private long _id;
         private long _parentId;
 
-        // Constructors
-        public Group()
-        {
-            _name = "";
-        }
-
-        public Group(string name, long id)
-        {
-            _name = name;
-            _id = id;
-        }
-
-        public Group(string name, long id, long parentId)
-        {
-            _name = name;
-            _id = id;
-            _parentId = parentId;
-        }
-
-        // Properties
+        #region Properties
+        /// <summary>
+        /// This is the name of the group.
+        /// </summary>
         public string Name
         {
             get { return _name; }
             set { _name = value; }
         }
 
+        /// <summary>
+        /// This is the group_id for the group.
+        /// Used to identify the group in database lookups.
+        /// </summary>
         public long Id
         {
             get { return _id; }
             set { _id = value; }
         }
 
+        /// <summary>
+        /// This is the group_id for the parent of the current group.
+        /// Used to identify parent group in database lookups.
+        /// </summary>
         public long ParentId
         {
             get { return _parentId; }
             set { _parentId = value; }
         }
+        #endregion
 
-        // Overrides
+        #region Constructors
+        /// <summary>
+        /// Makes a basic group with no name.
+        /// </summary>
+        public Group()
+        {
+            _name = "";
+        }
+
+        /// <summary>
+        /// Creates a group with a name and id.
+        /// </summary>
+        /// <param name="name">Name of the group.</param>
+        /// <param name="id">The group_id number.</param>
+        public Group(string name,
+                     long id)
+        {
+            _name = name;
+            _id = id;
+        }
+
+        /// <summary>
+        /// Creates a group with a name, id and id of its parent group.
+        /// </summary>
+        /// <param name="name">Name of the group.</param>
+        /// <param name="id">The group_id number.</param>
+        /// <param name="parentId">The group_id of this groups parent group.</param>
+        public Group(string name,
+                     long id,
+                     long parentId)
+        {
+            _name = name;
+            _id = id;
+            _parentId = parentId;
+        }
+        #endregion
+
+        #region Overrides
+        /// <summary>
+        /// Returns the name of the group.
+        /// </summary>
+        /// <returns>Name of the group.</returns>
         public override string ToString()
         {
             return _name;
         }
+        #endregion
     }
 }

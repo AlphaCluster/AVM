@@ -34,8 +34,39 @@ namespace AVM.Parsers
     {
         private Uri _link = null;
         private string _title = null;
-        private string _embeded = null;
+        private string _embedded = null;
 
+        #region Properties
+        /// <summary>
+        /// This is the title of the YouTube video.
+        /// </summary>
+        public string Title
+        {
+            get { return _title; }
+        }
+
+        /// <summary>
+        /// This is the embedded string for the YouTube video.
+        /// </summary>
+        public string Embedded
+        {
+            get { return _embedded; }
+        }
+
+        /// <summary>
+        /// This is the url for the YouTube video.
+        /// </summary>
+        public string Url
+        {
+            get { return _link.OriginalString; }
+        }
+        #endregion
+
+        #region Constructor
+        /// <summary>
+        /// Creates a YouTube parser using the url passed to it.
+        /// </summary>
+        /// <param name="input">The url for the YouTube video.</param>
         public YouTubeParser(string input)
         {
             if (Uri.IsWellFormedUriString(input, UriKind.Absolute))
@@ -43,7 +74,13 @@ namespace AVM.Parsers
             else
                 _link = null;
         }
+        #endregion
 
+        #region Methods
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public bool parse()
         {
             if (_link != null)
@@ -59,29 +96,15 @@ namespace AVM.Parsers
                 if (!doc.Contains("Embedding disabled by request"))
                 {
                     temp = doc.IndexOf("var embedUrl = '");
-                    _embeded = doc.Substring(temp + 16);
-                    temp = _embeded.IndexOf("';");
-                    _embeded = _embeded.Substring(0, temp);
+                    _embedded = doc.Substring(temp + 16);
+                    temp = _embedded.IndexOf("';");
+                    _embedded = _embedded.Substring(0, temp);
                 }
                 return true;
             }
             else
                 return false;
         }
-
-        public string Title
-        {
-            get { return _title; }
-        }
-
-        public string Embeded
-        {
-            get { return _embeded; }
-        }
-
-        public string Url
-        {
-            get { return _link.OriginalString; }
-        }
+        #endregion
     }
 }
