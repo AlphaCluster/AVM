@@ -51,9 +51,10 @@
             this.groupTitleLabel = new System.Windows.Forms.Label();
             this.nodeListView = new System.Windows.Forms.ListView();
             this.nodeBoxMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.playToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.playNodeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.infoNodeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editNodeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteNodeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.newButton = new System.Windows.Forms.Button();
             this.nodeSearchAllCheckBox = new System.Windows.Forms.CheckBox();
@@ -218,6 +219,7 @@
             this.addNewGroupMenuItem.Name = "addNewGroupMenuItem";
             this.addNewGroupMenuItem.Size = new System.Drawing.Size(159, 22);
             this.addNewGroupMenuItem.Text = "Add New Group";
+            this.addNewGroupMenuItem.Visible = false;
             this.addNewGroupMenuItem.Click += new System.EventHandler(this.addNewGroupMenuItem_Click);
             // 
             // renameGroupMenuItem
@@ -362,36 +364,50 @@
             this.nodeListView.View = System.Windows.Forms.View.Details;
             this.nodeListView.ColumnWidthChanged += new System.Windows.Forms.ColumnWidthChangedEventHandler(this.nodeListView_ColumnWidthChanged);
             this.nodeListView.DoubleClick += new System.EventHandler(this.nodeListView_DoubleClick);
+            this.nodeListView.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.nodeListView_KeyPress);
             // 
             // nodeBoxMenu
             // 
             this.nodeBoxMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.playToolStripMenuItem,
-            this.editToolStripMenuItem,
-            this.deleteToolStripMenuItem});
+            this.playNodeMenuItem,
+            this.infoNodeMenuItem,
+            this.editNodeMenuItem,
+            this.deleteNodeMenuItem});
             this.nodeBoxMenu.Name = "nodeBoxMenu";
-            this.nodeBoxMenu.Size = new System.Drawing.Size(108, 70);
+            this.nodeBoxMenu.Size = new System.Drawing.Size(108, 92);
+            this.nodeBoxMenu.Opening += new System.ComponentModel.CancelEventHandler(this.nodeBoxMenu_Opening);
             // 
-            // playToolStripMenuItem
+            // playNodeMenuItem
             // 
-            this.playToolStripMenuItem.Name = "playToolStripMenuItem";
-            this.playToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
-            this.playToolStripMenuItem.Text = "Play";
-            this.playToolStripMenuItem.Click += new System.EventHandler(this.playToolStripMenuItem_Click);
+            this.playNodeMenuItem.Enabled = false;
+            this.playNodeMenuItem.Name = "playNodeMenuItem";
+            this.playNodeMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.playNodeMenuItem.Text = "Play";
+            this.playNodeMenuItem.Click += new System.EventHandler(this.playNodeMenuItem_Click);
             // 
-            // editToolStripMenuItem
+            // infoNodeMenuItem
             // 
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
-            this.editToolStripMenuItem.Text = "Edit";
-            this.editToolStripMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
+            this.infoNodeMenuItem.Enabled = false;
+            this.infoNodeMenuItem.Name = "infoNodeMenuItem";
+            this.infoNodeMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.infoNodeMenuItem.Text = "Info";
+            this.infoNodeMenuItem.Click += new System.EventHandler(this.infoNodeMenuItem_Click);
             // 
-            // deleteToolStripMenuItem
+            // editNodeMenuItem
             // 
-            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
-            this.deleteToolStripMenuItem.Text = "Delete";
-            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            this.editNodeMenuItem.Enabled = false;
+            this.editNodeMenuItem.Name = "editNodeMenuItem";
+            this.editNodeMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.editNodeMenuItem.Text = "Edit";
+            this.editNodeMenuItem.Click += new System.EventHandler(this.editNodeMenuItem_Click);
+            // 
+            // deleteNodeMenuItem
+            // 
+            this.deleteNodeMenuItem.Enabled = false;
+            this.deleteNodeMenuItem.Name = "deleteNodeMenuItem";
+            this.deleteNodeMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.deleteNodeMenuItem.Text = "Delete";
+            this.deleteNodeMenuItem.Click += new System.EventHandler(this.deleteNodeMenuItem_Click);
             // 
             // mainTableLayoutPanel
             // 
@@ -523,9 +539,9 @@
         private System.Windows.Forms.TextBox searchGroupTextBox;
         private System.Windows.Forms.Label groupTitleLabel;
         private System.Windows.Forms.ContextMenuStrip nodeBoxMenu;
-        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem playToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteNodeMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editNodeMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem playNodeMenuItem;
         private System.Windows.Forms.CheckBox nodeSearchAllCheckBox;
         private System.Windows.Forms.TextBox nodeSearchTextBox;
         private System.Windows.Forms.Label nodeSearchLabel;
@@ -534,6 +550,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Label searchGroupsLabel;
+        private System.Windows.Forms.ToolStripMenuItem infoNodeMenuItem;
     }
 }
 

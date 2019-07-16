@@ -1,6 +1,6 @@
-﻿//  Video Manager - Appliction used to manage Video Files and DVD's
+﻿//  AVM - Appliction used to manage Web Videos, Video Files, and DVD's
 //
-//  Copyright (c) 2008 Nicholas Omann
+//  Copyright (c) 2008-2009 Nicholas Omann
 //
 //  Permission is hereby granted, free of charge, to any person
 //  obtaining a copy of this software and associated documentation

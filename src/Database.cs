@@ -1,6 +1,6 @@
-﻿//  Video Manager - Appliction used to manage Video Files and DVD's
+﻿//  AVM - Appliction used to manage Web Videos, Video Files, and DVD's
 //
-//  Copyright (c) 2008 Nicholas Omann
+//  Copyright (c) 2008-2009 Nicholas Omann
 //
 //  Permission is hereby granted, free of charge, to any person
 //  obtaining a copy of this software and associated documentation
@@ -38,12 +38,21 @@ namespace AVM
         private long parentOfCurrentGroup = 0;
         private long currentGroup = 0;
 
+        #region Properties
+        /// <summary>
+        /// This is used to set or get the parent of the CurrentGroup.
+        /// </summary>
         public long ParentGroup
         {
             get { return parentOfCurrentGroup; }
             set { parentOfCurrentGroup = value; }
         }
-
+        
+        /// <summary>
+        /// This is used to set or get the Current group being used by
+        /// the SQLite database. If it is set it will automatically
+        /// change the ParentGroup.
+        /// </summary>
         public long CurrentGroup
         {
             get { return currentGroup; }
@@ -69,8 +78,15 @@ namespace AVM
                     parentOfCurrentGroup = 0;
             }
         }
+        #endregion
 
-		public Database(string databasePath)
+        #region Constructors
+        /// <summary>
+        /// This creates a Database at the path sent via databasePath.
+        /// If it doesn't exist then it will create it.
+        /// </summary>
+        /// <param name="databasePath">This is the path to the SQLite database</param>
+        public Database(string databasePath)
         {
             if (!System.IO.File.Exists(databasePath))
             {
@@ -120,13 +136,14 @@ namespace AVM
             dbBuilder.DataSource = databasePath;
             _database = new SQLiteConnection(dbBuilder.ConnectionString);
             _databasePath = databasePath;
-		}
+        }
+        #endregion
 
-        // GROUP DATABASE FUNCTIONS
+        #region Group Functions
         /// <summary>
         /// Fills listBox with the group that is currently selected.
         /// </summary>
-        /// <param name="listBox"></param>
+        /// <param name="listBox">ListBox to be filled with groups.</param>
         public void refreshGroups(System.Windows.Forms.ListBox listBox)
         {
             _database.Open();
@@ -150,14 +167,19 @@ namespace AVM
             _database.Close();
         }
 
-        public List<AVM.Types.Group> getGroups(int groupID)
+        /// <summary>
+        /// Returns a List of all the groups inside the specified group.
+        /// </summary>
+        /// <param name="groupId">The id of the base group.</param>
+        /// <returns></returns>
+        public List<AVM.Types.Group> getGroups(int groupId)
         {
             List<AVM.Types.Group> list = new List<AVM.Types.Group>();
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
             SQLiteCommand command = new SQLiteCommand(
                             "SELECT name, group_id FROM groups " +
-                            "WHERE parent_id = " + groupID +
+                            "WHERE parent_id = " + groupId +
                             " AND group_id > 0;",
                             _database, trans);
             SQLiteDataReader reader = command.ExecuteReader();
@@ -174,6 +196,10 @@ namespace AVM
             return list;
         }
 
+        /// <summary>
+        /// Returns a List of all the groups in the database.
+        /// </summary>
+        /// <returns></returns>
         public List<AVM.Types.Group> getAllGroups()
         {
             List<AVM.Types.Group> list = new List<AVM.Types.Group>();
@@ -198,7 +224,7 @@ namespace AVM
         /// This will clear and populate a ComboBox with the Groups
         /// that are in the current ParentGroup.
         /// </summary>
-        /// <param name="comboBox"></param>
+        /// <param name="comboBox">ComboBox to be populated.</param>
         public void refreshComboBoxGroups(System.Windows.Forms.ComboBox comboBox)
         {
             _database.Open();
@@ -225,8 +251,8 @@ namespace AVM
         /// <summary>
         /// Fills listBox with the groups found using the passed in query string.
         /// </summary>
-        /// <param name="listBox"></param>
-        /// <param name="query"></param>
+        /// <param name="listBox">ListBox to be filled.</param>
+        /// <param name="query">Serach string.</param>
         public void searchGroups(System.Windows.Forms.ListBox listBox,
                                  string query)
         {
@@ -251,6 +277,10 @@ namespace AVM
             _database.Close();
         }
 
+        /// <summary>
+        /// Takes a List of groups and fills the database with them.
+        /// </summary>
+        /// <param name="groups">List of groups to fill database with.</param>
         public void fillGroups(List<AVM.Types.Group> groups)
         {
             _database.Open();
@@ -272,7 +302,6 @@ namespace AVM
 
                 adapter.InsertCommand.Transaction = trans;
                 adapter.InsertCommand.ExecuteNonQuery();
-
             }
 
             trans.Commit();
@@ -280,10 +309,10 @@ namespace AVM
         }
         
         /// <summary>
-        /// This will add a group using the name provovided as its name
+        /// This will add a group using the name provided as its name
         /// and the current group as its parent.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">Name of the new group.</param>
         public void addGroup(string name)
         {
             _database.Open();
@@ -301,8 +330,8 @@ namespace AVM
         /// <summary>
         /// Renames the group passed in from the database using the string that is passed in.
         /// </summary>
-        /// <param name="group"></param>
-        /// <param name="newName"></param>
+        /// <param name="group">The group that is being renamed.</param>
+        /// <param name="newName">The new name for the group.</param>
         public void renameGroup(AVM.Types.Group group,
                                 string newName)
         {
@@ -319,13 +348,13 @@ namespace AVM
         }
 
         /// <summary>
-        /// This function will recursivly delete a whole group,
-        /// its nodes and sub-groups.NOTE: This requires an open 
-        /// transaction and needs to be commited or rolledback
+        /// This function will recursively delete a whole group,
+        /// its nodes and sub-groups. NOTE: This requires an open 
+        /// transaction and needs to be committed or rolled back
         /// after.
         /// </summary>
-        /// <param name="group"></param>
-        /// <param name="trans"></param>
+        /// <param name="group">The group you want to remove.</param>
+        /// <param name="trans">The current running transation.</param>
         private void recursiveRemoveGroup(AVM.Types.Group group,
                                           SQLiteTransaction trans)
         {
@@ -356,6 +385,80 @@ namespace AVM
             reader.Close();
         }
 
+        /// <summary>
+        /// Remove the group sent to the function from the database.
+        /// </summary>
+        /// <param name="group">The group to be removed.</param>
+        public void removeGroup(AVM.Types.Group group)
+        {
+            _database.Open();
+            SQLiteTransaction trans = _database.BeginTransaction();
+            SQLiteCommand command = new SQLiteCommand(
+                            "DELETE FROM groups " +
+                            "WHERE group_id = " + group.Id +
+                            " AND parent_id = " + group.ParentId +
+                            " AND name = '" + group.Name + "';",
+                            _database, trans);
+            command.ExecuteNonQuery();
+
+            // Delete sub-nodes
+            command = new SQLiteCommand(
+                            "SELECT FROM nodes " +
+                            "WHERE parent_group_id = " + group.Id + ";",
+                            _database, trans);
+            //FINISH
+            trans.Commit();
+            _database.Close();
+        }
+
+        /// <summary>
+        /// Returns the last group id which is also the largest.
+        /// </summary>
+        /// <returns></returns>
+        public long getLastGroupId()
+        {
+            long last_id;
+
+            _database.Open();
+            SQLiteTransaction trans = _database.BeginTransaction();
+            SQLiteCommand command = new SQLiteCommand(
+                "SELECT max(group_id) FROM groups;",
+                _database, trans);
+            SQLiteDataReader reader = command.ExecuteReader();
+            reader.Read();
+            last_id = reader.GetInt64(0);
+            _database.Close();
+
+            return last_id;
+        }
+
+        /// <summary>
+        /// This moves the current group back to its parent.
+        /// </summary>
+        public void gotoParent()
+        {
+            if (parentOfCurrentGroup != 0)
+            {
+                _database.Open();
+                SQLiteTransaction trans = _database.BeginTransaction();
+                SQLiteCommand command = new SQLiteCommand(
+                                    "SELECT parent_id FROM groups " +
+                                    "WHERE group_id = " + parentOfCurrentGroup + ";", _database, trans);
+                SQLiteDataReader reader = command.ExecuteReader();
+                reader.Read();
+                parentOfCurrentGroup = reader.GetInt16(0);
+                reader.Close();
+                trans.Rollback();
+                _database.Close();
+            }
+        }
+        #endregion
+
+        #region Node Functions
+        /// <summary>
+        /// This function returns a List of all the nodes in the database.
+        /// </summary>
+        /// <returns></returns>
         public List<AVM.Types.Node> getAllNodes()
         {
             List<AVM.Types.Node> list = new List<AVM.Types.Node>();
@@ -417,13 +520,13 @@ namespace AVM
         /// <summary>
         /// This will return a List of Nodes that are in the group
         /// specified by groupId. NOTE: This requires an open transaction
-        /// and needs to be commited or rolledback after.
+        /// and needs to be committed or rolled back after.
         /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="trans"></param>
+        /// <param name="groupId">The id of the group to select nodes from.</param>
+        /// <param name="trans">The current transaction that is to be used.</param>
         /// <returns></returns>
         private List<AVM.Types.Node> selectNodesInGroup(long groupId,
-                                                            SQLiteTransaction trans)
+                                                        SQLiteTransaction trans)
         {
             List<AVM.Types.Node> tempList = new List<AVM.Types.Node>();
             SQLiteCommand command = new SQLiteCommand("SELECT * FROM nodes " +
@@ -483,7 +586,7 @@ namespace AVM
         /// <summary>
         /// This will remove all Nodes from the groupId sent in.
         /// NOTE: This requires an open transaction and needs to
-        /// be commited or rolledback after.
+        /// be committed or rolled back after.
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="trans"></param>
@@ -495,47 +598,11 @@ namespace AVM
             foreach (AVM.Types.Node node in nodeList)
                 removeSingleNode(node, trans);
         }
-
-        public void removeGroup(AVM.Types.Group group)
-        {
-            _database.Open();
-            SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand(
-                            "DELETE FROM groups " +
-                            "WHERE group_id = " + group.Id +
-                            " AND parent_id = " + group.ParentId +
-                            " AND name = '" + group.Name + "';",
-                            _database, trans);
-            command.ExecuteNonQuery();
-            
-            // Delete sub-nodes
-            command = new SQLiteCommand(
-                            "SELECT FROM nodes " +
-                            "WHERE parent_group_id = " + group.Id + ";",
-                            _database, trans);
-            //FINISH
-            trans.Commit();
-            _database.Close();
-        }
-
-        public void gotoParent()
-        {
-            if (parentOfCurrentGroup != 0)
-            {
-                _database.Open();
-                SQLiteTransaction trans = _database.BeginTransaction();
-                SQLiteCommand command = new SQLiteCommand(
-                                    "SELECT parent_id FROM groups " +
-                                    "WHERE group_id = " + parentOfCurrentGroup + ";", _database, trans);
-                SQLiteDataReader reader = command.ExecuteReader();
-                reader.Read();
-                parentOfCurrentGroup = reader.GetInt16(0);
-                reader.Close();
-                trans.Rollback();
-                _database.Close();
-            }
-        }
-
+        
+        /// <summary>
+        /// Fill the List passed with all the nodes in the current group.
+        /// </summary>
+        /// <param name="list">The List that is to be filled.</param>
         public void refreshNodes(ref System.Collections.Generic.List<AVM.Types.Node> list)
         {
             list.Clear();
@@ -546,6 +613,10 @@ namespace AVM
             _database.Close();
         }
 
+        /// <summary>
+        /// Adds all the nodes in the supplied List to the database.
+        /// </summary>
+        /// <param name="nodes">List of all the nodes to be added.</param>
         public void fillNodes(List<AVM.Types.Node> nodes)
         {
             _database.Open();
@@ -606,12 +677,16 @@ namespace AVM
             _database.Close();
         }
 
+        /// <summary>
+        /// Add the supplied node to the database.
+        /// </summary>
+        /// <param name="node">Node to added to the database.</param>
         public void addNode(AVM.Types.Node node)
         {
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
             
-            // Create strings to make the data adapter
+            // Create strings to make the data adapter.
             string identifiers = "name, parent_group_id, type, url, embeded, comment";
             string data = "@name, @parent_group_id, @type, @url, @embeded, @comment";
             if (node.IsFile)
@@ -625,20 +700,21 @@ namespace AVM
                 data += ", @episode_number, @season_number, @last_watched, @episode_name";
             }
 
-            // Create the adapter
+            // Create the adapter.
             SQLiteDataAdapter adapter = new SQLiteDataAdapter();
             adapter.InsertCommand = new SQLiteCommand(
                 "INSERT INTO nodes (" + identifiers + ") " +
                 "VALUES (" + data + ");",
                 trans.Connection);
 
-            // Fill the adapter with values
+            // Fill the adapter with values.
             adapter.InsertCommand.Parameters.AddWithValue("@name", node.Name);
             adapter.InsertCommand.Parameters.AddWithValue("@parent_group_id", currentGroup);
             adapter.InsertCommand.Parameters.AddWithValue("@type", node.UrlType);
             adapter.InsertCommand.Parameters.AddWithValue("@url", node.Url);
             adapter.InsertCommand.Parameters.AddWithValue("@embeded", node.Embeded);
             adapter.InsertCommand.Parameters.AddWithValue("@comment", node.Comment);
+            // If file populate the SQLiteDataAdapter with file data.
             if (node.IsFile)
             {
                 adapter.InsertCommand.Parameters.AddWithValue("@uri", node.File.Uri.ToString());
@@ -646,6 +722,7 @@ namespace AVM
                 adapter.InsertCommand.Parameters.AddWithValue("@audio_encoding", node.File.Audio_Encoding);
                 adapter.InsertCommand.Parameters.AddWithValue("@container", node.File.Container);
             }
+            // If episode populate the SQLiteDataAdapter with episode data.
             if (node.IsEpisode)
             {
                 adapter.InsertCommand.Parameters.AddWithValue("@episode_number", node.Episode.EpisodeNumber);
@@ -661,11 +738,17 @@ namespace AVM
             _database.Close();
         }
 
-        public void updateNode(AVM.Types.Node old_node, AVM.Types.Node node)
+        /// <summary>
+        /// Update the supplied node with the new nodes information.
+        /// </summary>
+        /// <param name="old_node">Node to be updated.</param>
+        /// <param name="node">Node with the new information.</param>
+        public void updateNode(AVM.Types.Node old_node,
+                               AVM.Types.Node node)
         {
             _database.Open();
             SQLiteTransaction trans = _database.BeginTransaction();
-            // fills node
+            // Fills node.
             string updateString = "name = @name" +
                                   ", type = @type" +
                                   ", url = @url" +
@@ -678,7 +761,7 @@ namespace AVM
                                 ", audio_encoding = @audio_encoding" +
                                 ", container = @container";
             }
-            // If episode populate the updateString with episode data
+            // If episode populate the updateString with episode data.
             if (node.IsEpisode)
             {
                 updateString += ", episode_number = @episode_number" +
@@ -687,7 +770,7 @@ namespace AVM
                                 ", episode_name = @episode_name";
             }
 
-            // Create the adapter
+            // Create the adapter.
             SQLiteDataAdapter adapter = new SQLiteDataAdapter();
             adapter.UpdateCommand = new SQLiteCommand(
                 "UPDATE nodes SET " + updateString +
@@ -699,7 +782,7 @@ namespace AVM
             adapter.UpdateCommand.Parameters.AddWithValue("@url", node.Url);
             adapter.UpdateCommand.Parameters.AddWithValue("@embeded", node.Embeded);
             adapter.UpdateCommand.Parameters.AddWithValue("@comment", node.Comment);
-            // If file populate the SQLiteDataAdapter with file data
+            // If file populate the SQLiteDataAdapter with file data.
             if (node.IsFile)
             {
                 adapter.UpdateCommand.Parameters.AddWithValue("@uri", node.File.Uri);
@@ -707,7 +790,7 @@ namespace AVM
                 adapter.UpdateCommand.Parameters.AddWithValue("@audio_encoding", node.File.Audio_Encoding);
                 adapter.UpdateCommand.Parameters.AddWithValue("@container", node.File.Container);
             }
-            // If episode populate the SQLiteDataAdapter with episode data
+            // If episode populate the SQLiteDataAdapter with episode data.
             if (node.IsEpisode)
             {
                 adapter.UpdateCommand.Parameters.AddWithValue("@episode_number", node.Episode.EpisodeNumber);
@@ -721,6 +804,13 @@ namespace AVM
             _database.Close();
         }
 
+        /// <summary>
+        /// Removes a single node from the database.
+        /// NOTE: A connection must be open and pass in a transaction
+        /// and after this is run it must be committed or rolled back.
+        /// </summary>
+        /// <param name="node">Node that is being removed.</param>
+        /// <param name="trans">Transaction that is being used.</param>
         private void removeSingleNode(AVM.Types.Node node,
                                       SQLiteTransaction trans)
         {
@@ -729,6 +819,10 @@ namespace AVM
             command.ExecuteNonQuery();
         }
 
+        /// <summary>
+        /// Remove the node that is supplied.
+        /// </summary>
+        /// <param name="node">Node to be removed.</param>
         public void removeNode(AVM.Types.Node node)
         {
             _database.Open();
@@ -738,6 +832,10 @@ namespace AVM
             _database.Close();
         }
 
+        /// <summary>
+        /// Increment the times played for a node.
+        /// </summary>
+        /// <param name="node">Node to be incremented.</param>
         public void incrementPlayed(AVM.Types.Node node)
         {
             _database.Open();
@@ -751,6 +849,14 @@ namespace AVM
             _database.Close();
         }
 
+        /// <summary>
+        /// Search the database using the query and return it in the List.
+        /// NOTE: This can search only the group or in all groups.
+        /// </summary>
+        /// <param name="nodes">The list of nodes to be filled.</param>
+        /// <param name="query">String that is used as the query.</param>
+        /// <param name="searchAll">True: Search all groups.
+        ///                         False: Search just current group.</param>
         public void searchNodes(ref List<AVM.Types.Node> nodes,
                                 string query,
                                 bool searchAll)
@@ -819,7 +925,64 @@ namespace AVM
             trans.Rollback();
             _database.Close();
         }
+        
+        /// <summary>
+        /// Gets the last node id which is also the largest node id.
+        /// </summary>
+        /// <returns></returns>
+        public long getLastNodeId()
+        {
+            long last_id;
 
+            _database.Open();
+            SQLiteTransaction trans = _database.BeginTransaction();
+            SQLiteCommand command = new SQLiteCommand(
+                "SELECT max(node_id) FROM nodes;",
+                _database, trans);
+            SQLiteDataReader reader = command.ExecuteReader();
+            reader.Read();
+            if (reader.IsDBNull(0))
+                last_id = 0;
+            else
+                last_id = reader.GetInt64(0);
+            _database.Close();
+
+            return last_id;
+        }
+
+        /// <summary>
+        /// Sets the node passed in as the lastWatched.
+        /// </summary>
+        /// <param name="node">Node that just started playing.</param>
+        public void lastWatched(AVM.Types.Node node)
+        {
+            // Make it so no Nodes in the same group are marked as last_watched
+            _database.Open();
+            SQLiteTransaction trans = _database.BeginTransaction();
+            SQLiteCommand command = new SQLiteCommand(
+                "UPDATE nodes SET last_watched = 0 WHERE parent_group_id = " +
+                node.ParentId + ";",
+                _database,
+                trans);
+            command.ExecuteNonQuery();
+            
+            // Mark current node as last_watched
+            command = new SQLiteCommand(
+                "UPDATE nodes SET last_watched = 1 WHERE node_id = " +
+                node.Id + ";",
+                _database,
+                trans);
+            command.ExecuteNonQuery();
+            trans.Commit();
+            _database.Close();
+        }
+        #endregion
+
+        #region Misc Functions
+        
+        /// <summary>
+        /// This function empties the database.
+        /// </summary>
         public void Clear()
         {
             _database.Open();
@@ -836,7 +999,13 @@ namespace AVM
             _database.Close();
         }
 
-        public string FindBreadcrumbs(long starting_id)
+        /// <summary>
+        /// This returns a breadcrumb list of all the groups going
+        /// back to the root group from the group whose id is supplied.
+        /// </summary>
+        /// <param name="starting_id">Group to make breadcrumbs from.</param>
+        /// <returns></returns>
+        public string findBreadcrumbs(long starting_id)
         {
             string crums = "";
             Stack<AVM.Types.Group> groups = new Stack<AVM.Types.Group>();
@@ -868,47 +1037,14 @@ namespace AVM
             _database.Close();
             return crums;
         }
-
-        public long getLastNodeId()
-        {
-            long last_id;
-
-            _database.Open();
-            SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand(
-                "SELECT max(node_id) FROM nodes;",
-                _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            reader.Read();
-            if (reader.IsDBNull(0))
-                last_id = 0;
-            else
-                last_id = reader.GetInt64(0);
-            _database.Close();
-
-            return last_id;
-        }
-
-        public long getLastGroupId()
-        {
-            long last_id;
-
-            _database.Open();
-            SQLiteTransaction trans = _database.BeginTransaction();
-            SQLiteCommand command = new SQLiteCommand(
-                "SELECT max(group_id) FROM groups;",
-                _database, trans);
-            SQLiteDataReader reader = command.ExecuteReader();
-            reader.Read();
-            last_id = reader.GetInt64(0);
-            _database.Close();
-
-            return last_id;
-        }
-
+        
+        /// <summary>
+        /// This closes the database.
+        /// </summary>
         public void Kill()
         {
             _database.Close();
         }
+        #endregion
     }
 }

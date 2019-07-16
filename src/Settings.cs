@@ -1,6 +1,6 @@
-﻿//  Video Manager - Appliction used to manage Video Files and DVD's
+﻿//  AVM - Appliction used to manage Web Videos, Video Files, and DVD's
 //
-//  Copyright (c) 2008 Nicholas Omann
+//  Copyright (c) 2008-2009 Nicholas Omann
 //
 //  Permission is hereby granted, free of charge, to any person
 //  obtaining a copy of this software and associated documentation
@@ -35,6 +35,7 @@ namespace AVM
 {
     public partial class Settings : Form
     {
+        private Color _lastWatchedColor; // Stores the color for Last Watched while its here.
         private Database _db;
         private bool _success = false;
 
@@ -93,6 +94,16 @@ namespace AVM
 
             Properties.Settings.Default.FileNamePattern = patternTextBox.Text;
             Properties.Settings.Default.MoreInfoService = moreInfoComboBox.Text;
+
+            Properties.Settings.Default.PromptOnDelete = 
+                    promptOnDeleteCheckBox.Checked;
+            Properties.Settings.Default.DoubleClickPlay = 
+                    doubleClickPlayCheckBox.Checked;
+            Properties.Settings.Default.BackspaceDelete =
+                    backspaceDeleteCheckBox.Checked;
+
+            Properties.Settings.Default.LastWatchedColor = _lastWatchedColor;
+
             _success = true;
             this.Close();
         }
@@ -170,12 +181,32 @@ namespace AVM
             huluWebPlayerCheckBox.Checked = Properties.Settings.Default.HuluWebPlayer;
             patternTextBox.Text = Properties.Settings.Default.FileNamePattern;
             moreInfoComboBox.Text = Properties.Settings.Default.MoreInfoService;
+
+            promptOnDeleteCheckBox.Checked = 
+                    Properties.Settings.Default.PromptOnDelete;
+            doubleClickPlayCheckBox.Checked = 
+                    Properties.Settings.Default.DoubleClickPlay;
+            backspaceDeleteCheckBox.Checked =
+                    Properties.Settings.Default.BackspaceDelete;
+
+            _lastWatchedColor = Properties.Settings.Default.LastWatchedColor;
+            lastWatchedColorPictureBox.BackColor = _lastWatchedColor;
         }
 
-        private void resetButton_Click(object sender, EventArgs e)
+        private void resetButton_Click(object sender,
+                                       EventArgs e)
         {
             Properties.Settings.Default.Reset();
             loadProperties();
+        }
+
+        private void lastWatchedColorPictureBox_Click(object sender,
+                                                     EventArgs e)
+        {
+            lastWatchedColorDialog.Color = _lastWatchedColor;
+            lastWatchedColorDialog.ShowDialog();
+            _lastWatchedColor = lastWatchedColorDialog.Color;
+            lastWatchedColorPictureBox.BackColor = _lastWatchedColor;
         }
     }
 }

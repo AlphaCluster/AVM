@@ -1,6 +1,6 @@
-﻿//  Video Manager - Appliction used to manage Video Files and DVD's
+﻿//  AVM - Appliction used to manage Web Videos, Video Files, and DVD's
 //
-//  Copyright (c) 2008 Nicholas Omann
+//  Copyright (c) 2008-2009 Nicholas Omann
 //
 //  Permission is hereby granted, free of charge, to any person
 //  obtaining a copy of this software and associated documentation
@@ -66,11 +66,13 @@ namespace AVM
 
         private void WebPlayer_Resize(object sender, EventArgs e)
         {
-            string embeded = original_embeded;
-            embeded = embeded.Replace("WIDTH", videoWebBrowser.Width.ToString());
-            embeded = embeded.Replace("HEIGHT", videoWebBrowser.Height.ToString());
             if (_youTube)
+            {
+                string embeded = original_embeded;
+                embeded = embeded.Replace("WIDTH", videoWebBrowser.Width.ToString());
+                embeded = embeded.Replace("HEIGHT", videoWebBrowser.Height.ToString());
                 videoWebBrowser.DocumentText = "<body style=\"margin:0px\">" + embeded + "</body>";
+            }
         }
 
         private void videoWebBrowser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
@@ -84,6 +86,11 @@ namespace AVM
             //    PlayYouTube(Video_Manager.Node.YOUTUBE_EMBEDED_BASE.Replace("LINK", parser.Embeded));
             //    videoWebBrowser
             //}
+        }
+
+        private void WebPlayer_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            videoWebBrowser.ScriptErrorsSuppressed = true;
         }
     }
 }

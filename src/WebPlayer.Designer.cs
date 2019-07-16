@@ -50,6 +50,7 @@
             this.Controls.Add(this.videoWebBrowser);
             this.Name = "WebPlayer";
             this.Text = "WebPlayer";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.WebPlayer_FormClosing);
             this.Resize += new System.EventHandler(this.WebPlayer_Resize);
             this.ResumeLayout(false);
 

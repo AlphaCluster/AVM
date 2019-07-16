@@ -50,6 +50,13 @@
             this.huluWebPlayerCheckBox = new System.Windows.Forms.CheckBox();
             this.youTubeWebPlayerCheckBox = new System.Windows.Forms.CheckBox();
             this.otherTabPage = new System.Windows.Forms.TabPage();
+            this.backspaceDeleteCheckBox = new System.Windows.Forms.CheckBox();
+            this.lastWatchedColorPictureBox = new System.Windows.Forms.PictureBox();
+            this.lastPlayedColorLabel = new System.Windows.Forms.Label();
+            this.doubleClickPlayCheckBox = new System.Windows.Forms.CheckBox();
+            this.promptOnDeleteCheckBox = new System.Windows.Forms.CheckBox();
+            this.moreInfoComboBox = new System.Windows.Forms.ComboBox();
+            this.moreInfoLabel = new System.Windows.Forms.Label();
             this.patternLabel = new System.Windows.Forms.Label();
             this.patternTextBox = new System.Windows.Forms.TextBox();
             this.resetButton = new System.Windows.Forms.Button();
@@ -59,12 +66,12 @@
             this.applyButton = new System.Windows.Forms.Button();
             this.cancelButton = new System.Windows.Forms.Button();
             this.backupSaveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.moreInfoLabel = new System.Windows.Forms.Label();
-            this.moreInfoComboBox = new System.Windows.Forms.ComboBox();
+            this.lastWatchedColorDialog = new System.Windows.Forms.ColorDialog();
             this.settingsTabControl.SuspendLayout();
             this.generalTabPage.SuspendLayout();
             this.webTabPage.SuspendLayout();
             this.otherTabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.lastWatchedColorPictureBox)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -265,9 +272,9 @@
             this.huluWebPlayerCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.huluWebPlayerCheckBox.Location = new System.Drawing.Point(8, 32);
             this.huluWebPlayerCheckBox.Name = "huluWebPlayerCheckBox";
-            this.huluWebPlayerCheckBox.Size = new System.Drawing.Size(215, 20);
+            this.huluWebPlayerCheckBox.Size = new System.Drawing.Size(218, 20);
             this.huluWebPlayerCheckBox.TabIndex = 1;
-            this.huluWebPlayerCheckBox.Text = "Play Hulu videos in Web Player";
+            this.huluWebPlayerCheckBox.Text = "Play Hulu videos in Web Player.";
             this.huluWebPlayerCheckBox.UseVisualStyleBackColor = true;
             // 
             // youTubeWebPlayerCheckBox
@@ -277,13 +284,18 @@
             this.youTubeWebPlayerCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.youTubeWebPlayerCheckBox.Location = new System.Drawing.Point(8, 6);
             this.youTubeWebPlayerCheckBox.Name = "youTubeWebPlayerCheckBox";
-            this.youTubeWebPlayerCheckBox.Size = new System.Drawing.Size(244, 20);
+            this.youTubeWebPlayerCheckBox.Size = new System.Drawing.Size(247, 20);
             this.youTubeWebPlayerCheckBox.TabIndex = 0;
-            this.youTubeWebPlayerCheckBox.Text = "Play YouTube videos in Web Player";
+            this.youTubeWebPlayerCheckBox.Text = "Play YouTube videos in Web Player.";
             this.youTubeWebPlayerCheckBox.UseVisualStyleBackColor = true;
             // 
             // otherTabPage
             // 
+            this.otherTabPage.Controls.Add(this.backspaceDeleteCheckBox);
+            this.otherTabPage.Controls.Add(this.lastWatchedColorPictureBox);
+            this.otherTabPage.Controls.Add(this.lastPlayedColorLabel);
+            this.otherTabPage.Controls.Add(this.doubleClickPlayCheckBox);
+            this.otherTabPage.Controls.Add(this.promptOnDeleteCheckBox);
             this.otherTabPage.Controls.Add(this.moreInfoComboBox);
             this.otherTabPage.Controls.Add(this.moreInfoLabel);
             this.otherTabPage.Controls.Add(this.patternLabel);
@@ -297,6 +309,75 @@
             this.otherTabPage.TabIndex = 2;
             this.otherTabPage.Text = "Other";
             this.otherTabPage.UseVisualStyleBackColor = true;
+            // 
+            // backspaceDeleteCheckBox
+            // 
+            this.backspaceDeleteCheckBox.AutoSize = true;
+            this.backspaceDeleteCheckBox.Location = new System.Drawing.Point(8, 146);
+            this.backspaceDeleteCheckBox.Name = "backspaceDeleteCheckBox";
+            this.backspaceDeleteCheckBox.Size = new System.Drawing.Size(268, 20);
+            this.backspaceDeleteCheckBox.TabIndex = 17;
+            this.backspaceDeleteCheckBox.Text = "Delete Video when Backspace pressed.";
+            this.backspaceDeleteCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // lastWatchedColorPictureBox
+            // 
+            this.lastWatchedColorPictureBox.Location = new System.Drawing.Point(246, 169);
+            this.lastWatchedColorPictureBox.Name = "lastWatchedColorPictureBox";
+            this.lastWatchedColorPictureBox.Size = new System.Drawing.Size(18, 16);
+            this.lastWatchedColorPictureBox.TabIndex = 16;
+            this.lastWatchedColorPictureBox.TabStop = false;
+            this.lastWatchedColorPictureBox.Click += new System.EventHandler(this.lastWatchedColorPictureBox_Click);
+            // 
+            // lastPlayedColorLabel
+            // 
+            this.lastPlayedColorLabel.AutoSize = true;
+            this.lastPlayedColorLabel.Location = new System.Drawing.Point(3, 169);
+            this.lastPlayedColorLabel.Name = "lastPlayedColorLabel";
+            this.lastPlayedColorLabel.Size = new System.Drawing.Size(237, 16);
+            this.lastPlayedColorLabel.TabIndex = 15;
+            this.lastPlayedColorLabel.Text = "Color for Last Watched Video Highlight";
+            // 
+            // doubleClickPlayCheckBox
+            // 
+            this.doubleClickPlayCheckBox.AutoSize = true;
+            this.doubleClickPlayCheckBox.Location = new System.Drawing.Point(8, 120);
+            this.doubleClickPlayCheckBox.Name = "doubleClickPlayCheckBox";
+            this.doubleClickPlayCheckBox.Size = new System.Drawing.Size(155, 20);
+            this.doubleClickPlayCheckBox.TabIndex = 13;
+            this.doubleClickPlayCheckBox.Text = "Play on Double-Click.";
+            this.doubleClickPlayCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // promptOnDeleteCheckBox
+            // 
+            this.promptOnDeleteCheckBox.AutoSize = true;
+            this.promptOnDeleteCheckBox.Location = new System.Drawing.Point(8, 94);
+            this.promptOnDeleteCheckBox.Name = "promptOnDeleteCheckBox";
+            this.promptOnDeleteCheckBox.Size = new System.Drawing.Size(134, 20);
+            this.promptOnDeleteCheckBox.TabIndex = 12;
+            this.promptOnDeleteCheckBox.Text = "Prompt on Delete.";
+            this.promptOnDeleteCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // moreInfoComboBox
+            // 
+            this.moreInfoComboBox.FormattingEnabled = true;
+            this.moreInfoComboBox.Items.AddRange(new object[] {
+            "imdb",
+            "Anime News Network",
+            "Wikipedia"});
+            this.moreInfoComboBox.Location = new System.Drawing.Point(121, 64);
+            this.moreInfoComboBox.Name = "moreInfoComboBox";
+            this.moreInfoComboBox.Size = new System.Drawing.Size(188, 24);
+            this.moreInfoComboBox.TabIndex = 11;
+            // 
+            // moreInfoLabel
+            // 
+            this.moreInfoLabel.AutoSize = true;
+            this.moreInfoLabel.Location = new System.Drawing.Point(3, 67);
+            this.moreInfoLabel.Name = "moreInfoLabel";
+            this.moreInfoLabel.Size = new System.Drawing.Size(112, 16);
+            this.moreInfoLabel.TabIndex = 10;
+            this.moreInfoLabel.Text = "More Info Service";
             // 
             // patternLabel
             // 
@@ -391,27 +472,6 @@
             this.backupSaveFileDialog.DefaultExt = "xml";
             this.backupSaveFileDialog.Filter = "xml files|*.xml|All files|*.*";
             // 
-            // moreInfoLabel
-            // 
-            this.moreInfoLabel.AutoSize = true;
-            this.moreInfoLabel.Location = new System.Drawing.Point(3, 67);
-            this.moreInfoLabel.Name = "moreInfoLabel";
-            this.moreInfoLabel.Size = new System.Drawing.Size(112, 16);
-            this.moreInfoLabel.TabIndex = 10;
-            this.moreInfoLabel.Text = "More Info Service";
-            // 
-            // moreInfoComboBox
-            // 
-            this.moreInfoComboBox.FormattingEnabled = true;
-            this.moreInfoComboBox.Items.AddRange(new object[] {
-            "imdb",
-            "Anime News Network",
-            "Wikipedia"});
-            this.moreInfoComboBox.Location = new System.Drawing.Point(121, 64);
-            this.moreInfoComboBox.Name = "moreInfoComboBox";
-            this.moreInfoComboBox.Size = new System.Drawing.Size(188, 24);
-            this.moreInfoComboBox.TabIndex = 11;
-            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -429,6 +489,7 @@
             this.webTabPage.PerformLayout();
             this.otherTabPage.ResumeLayout(false);
             this.otherTabPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.lastWatchedColorPictureBox)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -469,5 +530,11 @@
         private System.Windows.Forms.TextBox patternTextBox;
         private System.Windows.Forms.ComboBox moreInfoComboBox;
         private System.Windows.Forms.Label moreInfoLabel;
+        private System.Windows.Forms.CheckBox promptOnDeleteCheckBox;
+        private System.Windows.Forms.CheckBox doubleClickPlayCheckBox;
+        private System.Windows.Forms.ColorDialog lastWatchedColorDialog;
+        private System.Windows.Forms.PictureBox lastWatchedColorPictureBox;
+        private System.Windows.Forms.Label lastPlayedColorLabel;
+        private System.Windows.Forms.CheckBox backspaceDeleteCheckBox;
     }
 }

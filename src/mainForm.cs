@@ -1,6 +1,6 @@
-﻿//  Video Manager - Appliction used to manage Video Files and DVD's
+﻿//  AVM - Appliction used to manage Web Videos, Video Files, and DVD's
 //
-//  Copyright (c) 2008 Nicholas Omann
+//  Copyright (c) 2008-2009 Nicholas Omann
 //
 //  Permission is hereby granted, free of charge, to any person
 //  obtaining a copy of this software and associated documentation
@@ -47,13 +47,12 @@ namespace AVM
             else
                 nodeListView = Properties.Settings.Default.LastListView;
             
-            db = new AVM.Database(System.IO.Directory.GetCurrentDirectory().ToString() + "\\VideoManager.db3");
+            //db = new AVM.Database(System.IO.Directory.GetCurrentDirectory().ToString() + "\\VideoManager.db3");
+            db = new AVM.Database(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\VideoManager.db3");
 
             db.ParentGroup = Properties.Settings.Default.LastParentGroup;
             db.refreshGroups(groupListBox);
 
-
-            // FIXME: look into doing this better since it doesnt look right
             if (groupListBox.Items.Count > Properties.Settings.Default.LastSelectedIndex)
                 groupListBox.SelectedIndex = Properties.Settings.Default.LastSelectedIndex;
             else
@@ -61,7 +60,7 @@ namespace AVM
 
             // See if a group is selected
             if (db.CurrentGroup != 0)
-                groupTitleLabel.Text = db.FindBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
+                groupTitleLabel.Text = db.findBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
             else
                 groupTitleLabel.Text = "";
 
@@ -126,18 +125,32 @@ namespace AVM
         {
             if (groupListBox.SelectedIndex >= 0)
             {
-                db.removeGroup((AVM.Types.Group)groupListBox.SelectedItem);
-                db.refreshGroups(groupListBox);
-                db.CurrentGroup = db.ParentGroup;
-                if (groupListBox.Items.Count == 0)
-                    forwardButton.Enabled = false;
-                db.refreshNodes(ref nodes);
-                loadNodes();
-                // See if a group is selected
-                if (db.CurrentGroup != 0)
-                    groupTitleLabel.Text = db.FindBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
+                bool delete = false; // This decides if the group should actually be deleted.
+
+                if (Properties.Settings.Default.PromptOnDelete)
+                {
+                    DeleteConfirmation prompt = new DeleteConfirmation();
+                    prompt.ShowDialog();
+                    delete = prompt.Delete;
+                }
                 else
-                    groupTitleLabel.Text = "";
+                    delete = true; // If not prompted just delete it.
+
+                if (delete)
+                {
+                    db.removeGroup((AVM.Types.Group)groupListBox.SelectedItem);
+                    db.refreshGroups(groupListBox);
+                    db.CurrentGroup = db.ParentGroup;
+                    if (groupListBox.Items.Count == 0)
+                        forwardButton.Enabled = false;
+                    db.refreshNodes(ref nodes);
+                    loadNodes();
+                    // See if a group is selected
+                    if (db.CurrentGroup != 0)
+                        groupTitleLabel.Text = db.findBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
+                    else
+                        groupTitleLabel.Text = "";
+                }
             }
         }
 
@@ -174,17 +187,6 @@ namespace AVM
                 formatColumns();
                 loadNodes();
             }
-
-            //nodeListView.Items.Clear();
-            //foreach (Video_Manager.Group node in groupTreeView.Nodes)
-            //{
-            //    loadGroup(node.Nodes);
-            //    nodeListView.Items.Add(node.Text);
-            //}
-            //foreach(Video_Manager.Group group in groups)
-            //{
-            //    loadGroup(group);
-            //}
         }
 
         private void switchGroupToSelected(object sender, EventArgs e)
@@ -233,9 +235,6 @@ namespace AVM
 
         private void newButton_Click(object sender, EventArgs e)
         {
-            //ListViewItem tempItem = new ListViewItem("New");
-            //tempItem.SubItems.Add(new ListViewItem.ListViewSubItem(tempItem, "Bob"));
-            //nodeListView.Items.Add(tempItem);
             NodeEditor editor = new NodeEditor("New", null);
             editor.ShowDialog();
             if (editor.Successful)
@@ -252,12 +251,12 @@ namespace AVM
             {
                 newButton.Enabled = true;
                 db.CurrentGroup = ((AVM.Types.Group)groupListBox.SelectedItem).Id;
-                groupTitleLabel.Text = db.FindBreadcrumbs(db.CurrentGroup);
+                groupTitleLabel.Text = db.findBreadcrumbs(db.CurrentGroup);
             }
             else
             {
                 db.CurrentGroup = db.ParentGroup;
-                groupTitleLabel.Text = db.FindBreadcrumbs(db.CurrentGroup);
+                groupTitleLabel.Text = db.findBreadcrumbs(db.CurrentGroup);
             }
             db.refreshNodes(ref nodes);
             loadNodes();
@@ -270,7 +269,6 @@ namespace AVM
 
         private void loadNodes()
         {
-            // FIXME: make me know wtf i am!
             nodeListView.Items.Clear();
             foreach (AVM.Types.Node node in nodes)
             {
@@ -356,16 +354,32 @@ namespace AVM
             }
         }
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void deleteNodeMenuItem_Click(object sender, EventArgs e)
         {
-            ListView.SelectedIndexCollection indexes = nodeListView.SelectedIndices;
-            foreach (int index in indexes)
-                db.removeNode(nodes[index]);
-            db.refreshNodes(ref nodes);
-            loadNodes();
+            bool delete = false; // this is set to true if delete should take place
+            
+            // If PromptOnDelete then run the confirmation dialog
+            if (Properties.Settings.Default.PromptOnDelete)
+            {
+                DeleteConfirmation prompt = new DeleteConfirmation();
+                prompt.ShowDialog();
+                delete = prompt.Delete;
+            }
+            // else just set to delete
+            else
+                delete = true;
+
+            if (delete)
+            {
+                ListView.SelectedIndexCollection indexes = nodeListView.SelectedIndices;
+                foreach (int index in indexes)
+                    db.removeNode(nodes[index]);
+                db.refreshNodes(ref nodes);
+                loadNodes();
+            }
         }
 
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        private void editNodeMenuItem_Click(object sender, EventArgs e)
         {
             if (nodeListView.SelectedIndices.Count > 0)
             {
@@ -381,66 +395,9 @@ namespace AVM
             }
         }
 
-        private void playToolStripMenuItem_Click(object sender, EventArgs e)
+        private void playNodeMenuItem_Click(object sender, EventArgs e)
         {
-            if (nodeListView.SelectedIndices.Count > 0)
-            {
-                // Increment the watched list by one
-                nodes[nodeListView.SelectedIndices[0]].TimesPlayed++;
-                db.incrementPlayed(nodes[nodeListView.SelectedIndices[0]]);
-                // Check if what is selected can be played just incase something got through
-                if (nodes[nodeListView.SelectedIndices[0]].IsYouTube ||
-                    nodes[nodeListView.SelectedIndices[0]].IsHulu ||
-                    nodes[nodeListView.SelectedIndices[0]].IsFile)
-                {
-                    // If YouTube video
-                    if (nodes[nodeListView.SelectedIndices[0]].IsYouTube)
-                    {
-                        // If set to use the WebPlayer use it else use default web browser
-                        if ((Properties.Settings.Default.YouTubeWebPlayer == true) &&
-                            (nodes[nodeListView.SelectedIndices[0]].Embeded != null))
-                        {
-                            this.WindowState = FormWindowState.Minimized;
-                            nodes[nodeListView.SelectedIndices[0]].Play();
-                        }
-                        else
-                        {
-                            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(nodes[nodeListView.SelectedIndices[0]].Url);
-                            System.Diagnostics.Process.Start(psi);
-                        }
-                    }
-
-                    // If Hulu video
-                    if (nodes[nodeListView.SelectedIndices[0]].IsHulu)
-                    {
-                        // If set to use the WebPlayer use it else use default web browser
-                        if ((Properties.Settings.Default.HuluWebPlayer == true) &&
-                            (nodes[nodeListView.SelectedIndices[0]].Embeded != null))
-                        {
-                            this.WindowState = FormWindowState.Minimized;
-                            nodes[nodeListView.SelectedIndices[0]].Play();
-                        }
-                        else
-                        {
-                            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(nodes[nodeListView.SelectedIndices[0]].Url);
-                            System.Diagnostics.Process.Start(psi);
-                        }
-                    }
-
-                    // Plays files using whatever program has been set as a default for that file format.
-                    // This should be the most user friendly way but maybe could be setup to always run
-                    //  a specific application to play it. The benefits from this I dont know.
-                    if (nodes[nodeListView.SelectedIndices[0]].IsFile)
-                    {
-                        this.WindowState = FormWindowState.Minimized;
-                        System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(nodes[nodeListView.SelectedIndices[0]].File.Uri.LocalPath);
-                        System.Diagnostics.Process tempPlayer;
-                        tempPlayer = System.Diagnostics.Process.Start(psi);
-                        tempPlayer.WaitForExit();
-                    }
-                    this.WindowState = FormWindowState.Normal;
-                }
-            }
+            playSelectedNode();
         }
 
         /// <summary>
@@ -495,9 +452,9 @@ namespace AVM
                                          Properties.Settings.Default.TimesPlayedColumnWidth);
         }
 
-        private void nodeListView_ColumnWidthChanged(object sender, ColumnWidthChangedEventArgs e)
+        private void nodeListView_ColumnWidthChanged(object sender,
+                                                     ColumnWidthChangedEventArgs e)
         {
-            // dont work until the columns all exist
             if (nodeListView.Columns.Count == Properties.Settings.Default.NumberOfColumns)
             {
                 int index = 0;
@@ -552,7 +509,8 @@ namespace AVM
             }
         }
 
-        private void nodeSearchAllCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void nodeSearchAllCheckBox_CheckedChanged(object sender,
+                                                          EventArgs e)
         {
             if (nodeSearchTextBox.Text != "")
             {
@@ -563,7 +521,8 @@ namespace AVM
                 loadNodes();
             }
         }
-        private void nodeSearchTextBox_TextChanged(object sender, EventArgs e)
+        private void nodeSearchTextBox_TextChanged(object sender,
+                                                   EventArgs e)
         {
             if (nodeSearchTextBox.Text != "")
             {
@@ -577,7 +536,7 @@ namespace AVM
                 db.refreshNodes(ref nodes);
 
                 if (db.CurrentGroup != 0)
-                    groupTitleLabel.Text = db.FindBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
+                    groupTitleLabel.Text = db.findBreadcrumbs(db.CurrentGroup); //((AVM.Types.Group)groupListBox.SelectedItem).Name;
                 else
                     groupTitleLabel.Text = "";
             }
@@ -585,16 +544,148 @@ namespace AVM
             loadNodes();
         }
 
-        private void nodeListView_DoubleClick(object sender, EventArgs e)
+        private void nodeListView_DoubleClick(object sender,
+                                              EventArgs e)
+        {
+            if (Properties.Settings.Default.DoubleClickPlay)
+                playSelectedNode();
+            else
+                if (nodeListView.SelectedIndices.Count > 0)
+                {
+                    AVM.NodeViewer viewer = new AVM.NodeViewer(
+                        nodes[nodeListView.SelectedIndices[0]]);
+                    viewer.ShowDialog();
+                    if (viewer.Play)
+                        playSelectedNode();
+                }
+        }
+
+        private void nodeBoxMenu_Opening(object sender,
+                                         CancelEventArgs e)
+        {
+            if (nodeListView.SelectedItems.Count > 0)
+            {
+                playNodeMenuItem.Enabled = true;
+                infoNodeMenuItem.Enabled = true;
+                editNodeMenuItem.Enabled = true;
+                deleteNodeMenuItem.Enabled = true;
+            }
+            else
+            {
+                playNodeMenuItem.Enabled = true;
+                infoNodeMenuItem.Enabled = true;
+                editNodeMenuItem.Enabled = true;
+                deleteNodeMenuItem.Enabled = true;
+            }
+        }
+
+        private void infoNodeMenuItem_Click(object sender, EventArgs e)
+        {
+            AVM.NodeViewer viewer = new AVM.NodeViewer(
+                    nodes[nodeListView.SelectedIndices[0]]);
+            viewer.ShowDialog();
+            if (viewer.Play)
+                playNodeMenuItem_Click(sender, e);
+        }
+
+        public void playSelectedNode()
         {
             if (nodeListView.SelectedIndices.Count > 0)
             {
-                AVM.NodeViewer viewer = new AVM.NodeViewer(
-                    nodes[nodeListView.SelectedIndices[0]]);
-                viewer.ShowDialog();
-                if (viewer.Play)
-                    playToolStripMenuItem_Click(sender, e);
+                // Increment the watched list by one
+                nodes[nodeListView.SelectedIndices[0]].TimesPlayed++;
+                db.incrementPlayed(nodes[nodeListView.SelectedIndices[0]]);
+                // Mark as lastPlayed
+                if (nodes[nodeListView.SelectedIndices[0]].IsEpisode)
+                {
+                    db.lastWatched(nodes[nodeListView.SelectedIndices[0]]);
+                    nodes[nodeListView.SelectedIndices[0]].Episode.LastWatched = true;
+                }
+
+                // Check if what is selected can be played just incase something got through
+                if (nodes[nodeListView.SelectedIndices[0]].IsYouTube ||
+                    nodes[nodeListView.SelectedIndices[0]].IsHulu ||
+                    nodes[nodeListView.SelectedIndices[0]].IsFile)
+                {
+                    // If YouTube video
+                    if (nodes[nodeListView.SelectedIndices[0]].IsYouTube)
+                    {
+                        // If set to use the WebPlayer use it else use default web browser
+                        if ((Properties.Settings.Default.YouTubeWebPlayer == true) &&
+                            (nodes[nodeListView.SelectedIndices[0]].Embeded != null))
+                        {
+                            this.WindowState = FormWindowState.Minimized;
+                            nodes[nodeListView.SelectedIndices[0]].Play();
+                        }
+                        else
+                        {
+                            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(nodes[nodeListView.SelectedIndices[0]].Url);
+                            System.Diagnostics.Process.Start(psi);
+                        }
+                    }
+
+                    // If Hulu video
+                    if (nodes[nodeListView.SelectedIndices[0]].IsHulu)
+                    {
+                        // If set to use the WebPlayer use it else use default web browser
+                        if ((Properties.Settings.Default.HuluWebPlayer == true) &&
+                            (nodes[nodeListView.SelectedIndices[0]].Embeded != null))
+                        {
+                            this.WindowState = FormWindowState.Minimized;
+                            nodes[nodeListView.SelectedIndices[0]].Play();
+                        }
+                        else
+                        {
+                            System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(nodes[nodeListView.SelectedIndices[0]].Url);
+                            System.Diagnostics.Process.Start(psi);
+                        }
+                    }
+
+                    // Plays files using whatever program has been set as a default for that file format.
+                    // This should be the most user friendly way but maybe could be setup to always run
+                    //  a specific application to play it. The benefits from this I dont know.
+                    if (nodes[nodeListView.SelectedIndices[0]].IsFile)
+                    {
+                        this.WindowState = FormWindowState.Minimized;
+                        System.Diagnostics.ProcessStartInfo psi = new System.Diagnostics.ProcessStartInfo(nodes[nodeListView.SelectedIndices[0]].File.Uri.LocalPath);
+                        System.Diagnostics.Process tempPlayer;
+                        tempPlayer = System.Diagnostics.Process.Start(psi);
+                        tempPlayer.WaitForExit();
+                    }
+                    this.WindowState = FormWindowState.Normal;
+                }
+                db.refreshNodes(ref nodes);
+                loadNodes();
             }
+        }
+
+        private void nodeListView_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (Properties.Settings.Default.BackspaceDelete)
+                if ((e.KeyChar == '\b') && (nodeListView.SelectedItems.Count > 0))
+                {
+                    bool delete = false; // this is set to true if delete should take place
+
+                    // If PromptOnDelete then run the confirmation dialog
+                    if (Properties.Settings.Default.PromptOnDelete)
+                    {
+                        DeleteConfirmation prompt = new DeleteConfirmation();
+                        prompt.ShowDialog();
+                        delete = prompt.Delete;
+                    }
+                    // else just set to delete
+                    else
+                        delete = true;
+
+                    if (delete)
+                    {
+                        ListView.SelectedIndexCollection indexes = nodeListView.SelectedIndices;
+                        foreach (int index in indexes)
+                            db.removeNode(nodes[index]);
+                        db.refreshNodes(ref nodes);
+                        loadNodes();
+                    }
+                }
         }
     }
 }

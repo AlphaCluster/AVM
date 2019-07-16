@@ -365,7 +365,7 @@
             this.youTubeTabPage.Padding = new System.Windows.Forms.Padding(3);
             this.youTubeTabPage.Size = new System.Drawing.Size(379, 279);
             this.youTubeTabPage.TabIndex = 0;
-            this.youTubeTabPage.Text = "You Tube";
+            this.youTubeTabPage.Text = "YouTube";
             this.youTubeTabPage.UseVisualStyleBackColor = true;
             // 
             // youTubeLastWatchedCheckBox

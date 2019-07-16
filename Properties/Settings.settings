@@ -69,28 +69,28 @@
       <Value Profile="(Default)">Played</Value>
     </Setting>
     <Setting Name="NameColumnWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">190</Value>
+      <Value Profile="(Default)">100</Value>
     </Setting>
     <Setting Name="EpisodeNameColumnWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">150</Value>
     </Setting>
     <Setting Name="SeasonNumberColumnWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">50</Value>
     </Setting>
     <Setting Name="EpisodeNumberColumnWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">30</Value>
     </Setting>
     <Setting Name="VideoCodecColumnWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">55</Value>
     </Setting>
     <Setting Name="AudioCodecColumnWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">55</Value>
     </Setting>
     <Setting Name="ContainerColumnWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">55</Value>
     </Setting>
     <Setting Name="TimesPlayedColumnWidth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
+      <Value Profile="(Default)">55</Value>
     </Setting>
     <Setting Name="NumberOfColumns" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">4</Value>
@@ -100,6 +100,15 @@
     </Setting>
     <Setting Name="MoreInfoService" Type="System.String" Scope="User">
       <Value Profile="(Default)">imdb</Value>
+    </Setting>
+    <Setting Name="PromptOnDelete" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="DoubleClickPlay" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="BackspaceDelete" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>
